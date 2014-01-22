@@ -1,6 +1,4 @@
-package org.springframework.social.iservport.connect;
-
-import java.util.List;
+package org.springframework.social.iservport.api.impl;
 
 import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.iservport.api.IservportHomeOperations;
@@ -16,19 +14,26 @@ public class IservportTemplate
 	implements Iservport 
 {
 	
+	static final String BASE_URL = "https://api.iservport.com/rest/";
+	
+	private IservportHomeOperations iservportHomeOperations;
+	
     public IservportTemplate() {
         super();
     }
     
     public IservportTemplate(String accessToken) {
         super(accessToken);
+        init();
     }
+    
+    private void init() {
+    	iservportHomeOperations = new IservportHomeOperationsImpl(getRestTemplate());
+	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public IservportHomeOperations iservportHomeOperations() {
-		List<?> stateList = (List<?>) getRestTemplate().getForEntity("/rest/state/find", List.class, 1);
-		return null;
+		return iservportHomeOperations;
 	}
     
 }

@@ -37,8 +37,8 @@ import org.springframework.social.connect.web.ProviderSignInAttempt;
 import org.springframework.social.connect.web.ProviderSignInController;
 import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.iservport.api.RemoteUser;
+import org.springframework.social.iservport.api.impl.IservportTemplate;
 import org.springframework.social.iservport.connect.IservportConnectionFactory;
-import org.springframework.social.iservport.connect.IservportTemplate;
 import org.springframework.social.iservport.connect.RemoteUserSignInAdapter;
 import org.springframework.social.iservport.connect.SecurityUtils;
 

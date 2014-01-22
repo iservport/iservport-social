@@ -22,8 +22,11 @@ public class IservportAdapter
 
 	@Override
 	public void setConnectionValues(Iservport api, ConnectionValues values) {
-		// TODO Auto-generated method stub
-
+		Object user = api.iservportHomeOperations().findUser(0);
+//		values.setProviderUserId(Long.toString(user.getId()));
+//        values.setDisplayName(user.getDisplayName());
+//        values.setProfileUrl(user.getProfileUrl());
+//        values.setImageUrl(user.getProfileImageUrl());
 	}
 
 	@Override

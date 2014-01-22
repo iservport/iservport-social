@@ -1,6 +1,7 @@
 package org.springframework.social.iservport.connect;
 
 import org.springframework.social.iservport.api.Iservport;
+import org.springframework.social.iservport.api.impl.IservportTemplate;
 import org.springframework.social.oauth2.AbstractOAuth2ServiceProvider;
 import org.springframework.social.oauth2.OAuth2Template;
 
