@@ -15,7 +15,7 @@ public class IservportTemplate
 	implements Iservport 
 {
 	
-	static final String BASE_URL = "https://api.iservport.com/rest/";
+	static final String BASE_URL = "http://api.iservport.com:8080/rest";
 	
     public IservportTemplate() {
         super();
@@ -26,14 +26,19 @@ public class IservportTemplate
     }
 
 	@Override
-	public Object apply(String uri) {
-		return getRestTemplate().getForObject(URIBuilder.fromUri(BASE_URL + uri).build(), Object.class);
+	public String applyGet(String uri) {
+		return getRestTemplate().getForObject(URIBuilder.fromUri(BASE_URL + uri).build(), String.class);
 	}
 
+	@Override
+	public String applyPost(String uri, Object request) {
+		return getRestTemplate().postForObject(URIBuilder.fromUri(BASE_URL + uri).build(), request, String.class);
+	}
+    
 	@Override
 	public RemoteUser getProfile() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-    
+
 }

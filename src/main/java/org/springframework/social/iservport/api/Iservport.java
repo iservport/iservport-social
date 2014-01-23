@@ -10,8 +10,20 @@ import org.springframework.social.ApiBinding;
  */
 public interface Iservport extends ApiBinding
 {
+	/**
+	 * Common API call
+	 * 
+	 * @param uri
+	 */
+	String applyGet(String uri);
 	
-	Object apply(String uri);
+	/**
+	 * Common API call
+	 * 
+	 * @param uri
+	 * @param request
+	 */
+	String applyPost(String uri, Object request);
 	
 	RemoteUser getProfile();
 	
