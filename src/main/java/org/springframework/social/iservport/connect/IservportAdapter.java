@@ -4,6 +4,7 @@ import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.ConnectionValues;
 import org.springframework.social.connect.UserProfile;
 import org.springframework.social.iservport.api.Iservport;
+import org.springframework.social.iservport.api.RemoteUser;
 
 /**
  * Iservport API adapter.
@@ -22,11 +23,8 @@ public class IservportAdapter
 
 	@Override
 	public void setConnectionValues(Iservport api, ConnectionValues values) {
-		Object user = api.iservportHomeOperations().findUser(0);
-//		values.setProviderUserId(Long.toString(user.getId()));
-//        values.setDisplayName(user.getDisplayName());
-//        values.setProfileUrl(user.getProfileUrl());
-//        values.setImageUrl(user.getProfileImageUrl());
+		RemoteUser user = api.getProfile();
+		user.setConnectionValues(values);
 	}
 
 	@Override

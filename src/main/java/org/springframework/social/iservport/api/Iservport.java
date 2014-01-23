@@ -11,6 +11,8 @@ import org.springframework.social.ApiBinding;
 public interface Iservport extends ApiBinding
 {
 	
-	IservportHomeOperations iservportHomeOperations();
+	Object apply(String uri);
+	
+	RemoteUser getProfile();
 	
 }
