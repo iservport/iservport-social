@@ -1,5 +1,7 @@
 package org.springframework.social.iservport.api.impl;
 
+import java.net.URI;
+
 import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.iservport.api.RemoteUser;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
@@ -15,7 +17,9 @@ public class IservportTemplate
 	implements Iservport 
 {
 	
-	static final String BASE_URL = "http://api.iservport.com:8080/rest";
+	static final String BASE_URL = "https://api.iservport.com";
+	
+	private String baseUrl;
 	
     public IservportTemplate() {
         super();
@@ -27,18 +31,37 @@ public class IservportTemplate
 
 	@Override
 	public String applyGet(String uri) {
-		return getRestTemplate().getForObject(URIBuilder.fromUri(BASE_URL + uri).build(), String.class);
+		return getRestTemplate().getForObject(buildURI(uri), String.class);
 	}
 
 	@Override
 	public String applyPost(String uri, Object request) {
-		return getRestTemplate().postForObject(URIBuilder.fromUri(BASE_URL + uri).build(), request, String.class);
+		return getRestTemplate().postForObject(buildURI(uri), request, String.class);
 	}
     
 	@Override
 	public RemoteUser getProfile() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	/**
+	 * Build the uri.
+	 * 
+	 * @param uri
+	 */
+	protected URI buildURI(String uri) {
+		return URIBuilder.fromUri(getBaseUrl() + uri).build();
+	}
+	
+	public String getBaseUrl() {
+		if (baseUrl==null) {
+			return BASE_URL;
+		}
+		return baseUrl;
+	}
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
 	}
 
 }
