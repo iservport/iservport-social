@@ -19,10 +19,12 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.social.connect.Connection;
@@ -50,6 +52,12 @@ import org.springframework.social.iservport.utils.RemoteUserUtils;
  * @author mauriciofernandesdecastro
  */
 @Configuration
+@Import({ SecurityConfig.class })
+@ComponentScan(
+		basePackages = {
+				"com.iservport.*.controller"
+				, "org.springframework.social.iservport.user"
+		})
 public class SocialConfig {
 
 	@Inject
@@ -58,8 +66,13 @@ public class SocialConfig {
 	@Inject
 	private TextEncryptor textEncryptor;
 
-	@Inject
-	private Environment environment;
+	/**
+	 * Allows repositories to access RDBMS data using the JDBC API.
+	 */
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(dataSource);
+	}
 	
 	@Bean
 	public OAuthConnectionDatabaseBootstrap connectionDatabaseBootstrap() {
@@ -81,7 +94,7 @@ public class SocialConfig {
 //		registry.addConnectionFactory(new TwitterConnectionFactory(environment.getProperty("twitter.consumerKey"), environment.getProperty("twitter.consumerSecret")));
 //		registry.addConnectionFactory(new FacebookConnectionFactory(environment.getProperty("facebook.appId"), environment.getProperty("facebook.appSecret")));
 //		registry.addConnectionFactory(new LinkedInConnectionFactory(environment.getProperty("linkedin.consumerKey"), environment.getProperty("linkedin.consumerSecret")));		
-		registry.addConnectionFactory(new IservportConnectionFactory(environment.getProperty("iservport.consumerKey"), environment.getProperty("iservport.consumerSecret")));
+		registry.addConnectionFactory(new IservportConnectionFactory());
 		return registry;
 	}
 	
@@ -112,7 +125,7 @@ public class SocialConfig {
 	@Bean
 	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
 	public ConnectionRepository connectionRepository() {
-		RemoteUser remoteUser = RemoteUserUtils.getCurrentAccount();
+		RemoteUser remoteUser = RemoteUserUtils.getCurrentRemoteUser();
 		if (remoteUser == null) {
 			throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
 		}

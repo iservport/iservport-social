@@ -52,6 +52,7 @@ public class OAuthConnectionDatabaseBootstrap
 
 	private String remoteUserTableDdl = "create table core_RemoteUser (id int not null,"
 			+ "userKey varchar(255) not null,"
+			+ "password varchar(255) not null,"
 			+ "displayName varchar(255),"
 			+ "profileUrl varchar(512),"
 			+ "imageUrl varchar(512),"

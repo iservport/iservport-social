@@ -20,14 +20,14 @@ public class RemoteUserMapper
 	 * SELECT clause for RemoteUser fields.
 	 */
 	public static final String SELECT_REMOTE_USER
-		= "select id, userKey, displayName, profileUrl, imageUrl from core_remote";
+		= "select id, userKey, displayName, profileUrl, imageUrl from core_RemoteUser";
 
 	
 	/**
 	 * INSERT clause for RemoteUser fields.
 	 */
 	public static final String INSERT_REMOTE_USER
-		= "insert into core_remote (userKey, displayName, profileUrl, imageUrl) values (?, ?, ?, ?)";
+		= "insert into core_RemoteUser (userKey, displayName, profileUrl, imageUrl) values (?, ?, ?, ?)";
 
 	
 	public RemoteUser mapRow(ResultSet rs, int row) throws SQLException {

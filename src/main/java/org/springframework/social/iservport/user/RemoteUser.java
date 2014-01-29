@@ -15,15 +15,15 @@ public class RemoteUser
 	
 	private static final long serialVersionUID = 1L;
 	
-	private Integer id;
+	private Integer id = new Integer(0);
 	
-	private String userKey;
+	private String userKey = "";
 	
-	private String displayName;
+	private String displayName = "";
 	
-	private String profileUrl;
+	private String profileUrl = "";
 	
-	private String imageUrl;
+	private String imageUrl = "";
 	
 	/**
 	 * Constructor.

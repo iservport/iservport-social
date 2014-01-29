@@ -38,13 +38,13 @@ public final class RemoteUserUtils {
 	/**
 	 * Get the currently authenticated principal.
 	 */
-	public static RemoteUser getCurrentAccount() {
+	public static RemoteUser getCurrentRemoteUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
-			return null;
+			return new RemoteUser();
 		}
 		Object principal = authentication.getPrincipal();
-		return principal instanceof RemoteUser ? (RemoteUser) principal : null;
+		return principal instanceof RemoteUser ? (RemoteUser) principal : new RemoteUser();
 	}
 	
 	private RemoteUserUtils() {
