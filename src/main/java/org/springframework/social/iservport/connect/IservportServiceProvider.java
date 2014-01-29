@@ -16,8 +16,8 @@ public final class IservportServiceProvider
 
     public IservportServiceProvider(String clientId, String clientSecret) {
         super(new OAuth2Template(clientId, clientSecret,
-            "https://service.iservport.com/rest/oauth/authorize",
-            "https://service.iservport.com/rest/oauth/access_token"));
+            "https://api.iservport.com/rest/oauth/authorize",
+            "https://api.iservport.com/rest/oauth/token"));
     }
 
     public Iservport getApi(String accessToken) {

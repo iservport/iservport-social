@@ -35,7 +35,7 @@ public class OAuthConnectionDatabaseBootstrap
 		this.dataSource = dataSource;
 	}
 	
-	private String tableCreate = "create table UserConnection (userId varchar(255) not null,"
+	private String tableCreate = "create table core_UserConnection (userId varchar(255) not null,"
 			+ "providerId varchar(255) not null,"
 			+ "providerUserId varchar(255),"
 			+ "rank int not null,"

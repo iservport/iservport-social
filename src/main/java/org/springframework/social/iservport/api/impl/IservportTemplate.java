@@ -1,9 +1,10 @@
 package org.springframework.social.iservport.api.impl;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.springframework.social.iservport.api.Iservport;
-import org.springframework.social.iservport.api.RemoteUser;
+import org.springframework.social.iservport.user.RemoteUser;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.support.URIBuilder;
 
@@ -32,6 +33,11 @@ public class IservportTemplate
 	@Override
 	public String applyGet(String uri) {
 		return getRestTemplate().getForObject(buildURI(uri), String.class);
+	}
+
+	@Override
+	public String applyGet(String uri, Map<String, ?> urlVariables) {
+		return getRestTemplate().getForObject(buildURI(uri).toString(), String.class, urlVariables);
 	}
 
 	@Override

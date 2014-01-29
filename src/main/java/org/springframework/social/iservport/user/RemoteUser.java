@@ -1,4 +1,4 @@
-package org.springframework.social.iservport.api;
+package org.springframework.social.iservport.user;
 
 import java.io.Serializable;
 
@@ -17,6 +17,8 @@ public class RemoteUser
 	
 	private Integer id;
 	
+	private String userKey;
+	
 	private String displayName;
 	
 	private String profileUrl;
@@ -30,11 +32,36 @@ public class RemoteUser
 		super();
 	}
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param id
+	 * @param userKey
+	 * @param displayName
+	 * @param profileUrl
+	 * @param imageUrl
+	 */
+	public RemoteUser(Integer id, String userKey, String displayName, String profileUrl, String imageUrl) {
+		this();
+		setId(id);
+		setUserKey(userKey);
+		setDisplayName(displayName);
+		setProfileUrl(profileUrl);
+		setImageUrl(imageUrl);
+	}
+	
 	public Integer getId() {
 		return id;
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	
+	public String getUserKey() {
+		return userKey;
+	}
+	public void setUserKey(String userKey) {
+		this.userKey = userKey;
 	}
 	
 	public String getDisplayName() {
