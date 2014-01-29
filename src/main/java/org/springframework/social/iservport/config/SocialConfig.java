@@ -39,8 +39,9 @@ import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.iservport.api.impl.IservportTemplate;
 import org.springframework.social.iservport.connect.IservportConnectionFactory;
 import org.springframework.social.iservport.connect.RemoteUserSignInAdapter;
-import org.springframework.social.iservport.connect.SecurityUtils;
 import org.springframework.social.iservport.user.RemoteUser;
+import org.springframework.social.iservport.user.RemoteUserRepository;
+import org.springframework.social.iservport.utils.RemoteUserUtils;
 
 /**
  * Spring Social Configuration.
@@ -102,6 +103,7 @@ public class SocialConfig {
 
 	/**
 	 * A request-scoped bean that provides the data access interface to the current user's connections.
+	 * 
 	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
 	 * If no remote user is authenticated when the target is resolved, an {@link IllegalStateException} is thrown.
 	 * 
@@ -110,7 +112,7 @@ public class SocialConfig {
 	@Bean
 	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
 	public ConnectionRepository connectionRepository() {
-		RemoteUser remoteUser = SecurityUtils.getCurrentAccount();
+		RemoteUser remoteUser = RemoteUserUtils.getCurrentAccount();
 		if (remoteUser == null) {
 			throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
 		}
@@ -119,9 +121,8 @@ public class SocialConfig {
 
 	/**
 	 * A request-scoped bean representing the API binding to ISERVPORT for the current user.
+	 * 
 	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
-	 * The target is an authorized {@link Facebook} instance if the current user has connected his or her account with a Facebook account.
-	 * Otherwise, the target is a new FacebookTemplate that can invoke operations that do not require authorization.
 	 */
 	@Bean
 	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
@@ -141,11 +142,12 @@ public class SocialConfig {
 	/**
 	 * The Spring MVC Controller that coordinates "sign-in with {provider}" attempts.
 	 * 
+	 * @param remoteUserRepository
 	 * @param requestCache
 	 */
 	@Bean
-	public ProviderSignInController providerSignInController(RequestCache requestCache) {
-		return new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository(), new RemoteUserSignInAdapter(requestCache));
+	public ProviderSignInController providerSignInController(RemoteUserRepository remoteUserRepository, RequestCache requestCache) {
+		return new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository(), new RemoteUserSignInAdapter(remoteUserRepository, requestCache));
 	}
 	
 }
