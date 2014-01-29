@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
- * Create UserConnection table if does not exist.
+ * Create required tables if do not exist.
  * 
  * @author mauriciofernandesdecastro
  */
@@ -35,7 +35,7 @@ public class OAuthConnectionDatabaseBootstrap
 		this.dataSource = dataSource;
 	}
 	
-	private String tableCreate = "create table core_UserConnection (userId varchar(255) not null,"
+	private String userConnectionTableDdl = "create table core_UserConnection (userId varchar(255) not null,"
 			+ "providerId varchar(255) not null,"
 			+ "providerUserId varchar(255),"
 			+ "rank int not null,"
@@ -48,35 +48,29 @@ public class OAuthConnectionDatabaseBootstrap
 			+ "expireTime bigint,"
 			+ "primary key (userId, providerId, providerUserId));";
 	
-	private String tableIndexCreate = "create unique index UserConnectionRank on UserConnection(userId, providerId, rank);";
+	private String userConnectionIndexDdl = "create unique index UserConnectionRank on UserConnection(userId, providerId, rank);";
 
+	private String remoteUserTableDdl = "create table core_RemoteUser (id int not null,"
+			+ "userKey varchar(255) not null,"
+			+ "displayName varchar(255),"
+			+ "profileUrl varchar(512),"
+			+ "imageUrl varchar(512),"
+			+ "primary key (id));";
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			DatabaseMetaData metadata = connection.getMetaData();
-			ResultSet result = metadata.getTables(null, null, "core_UserConnection", null);
-			try {
-				// checks if the table exists, if not, creates it
-				if (result.next()) {
-					logger.info("User connection table found.");
-				}
-				else {
-					Statement stmt = connection.createStatement();
-					try {
-						stmt.execute(tableCreate);
-						stmt.execute(tableIndexCreate);
-						logger.info("User connection table created.");
-					} finally {
-						stmt.close();
-					}
-				}
-			} finally {
-				result.close();
+			if (!exists(metadata, "core_UserConnection")) {
+				create(connection, userConnectionTableDdl, userConnectionIndexDdl);
+			}
+			if (!exists(metadata, "core_RemoteUser")) {
+				create(connection, remoteUserTableDdl);
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException("Unable to create user connection table", e);
+			throw new RuntimeException("Unable to create table", e);
 		} finally {
 			if (connection != null) {
 				try {
@@ -85,6 +79,52 @@ public class OAuthConnectionDatabaseBootstrap
 					
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Helper method to check for the table existence.
+	 * 
+	 * @param metadata
+	 * @param tableName
+	 * 
+	 * @throws SQLException
+	 */
+	protected boolean exists(DatabaseMetaData metadata, String tableName) throws SQLException {
+		boolean exists;
+		ResultSet result = metadata.getTables(null, null, tableName, null);
+		try {
+			// checks if the table exists
+			if (result.next()) {
+				logger.info("{} table found.", tableName);
+				exists = true;
+			}
+			else {
+				exists = false;
+			}
+		} finally {
+			result.close();
+		}
+		return exists;
+	}
+	
+	/**
+	 * Helper method to execute create statements.
+	 * 
+	 * @param connection
+	 * @param ddl
+	 * 
+	 * @throws SQLException
+	 */
+	protected void create(Connection connection, String... ddl) throws SQLException {
+		Statement stmt = connection.createStatement();
+		try {
+			for (String d: ddl) {
+				stmt.execute(d);
+			}
+			logger.info("Created.");
+		} finally {
+			stmt.close();
 		}
 	}
 
