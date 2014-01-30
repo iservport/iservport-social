@@ -53,11 +53,7 @@ import org.springframework.social.iservport.utils.RemoteUserUtils;
  */
 @Configuration
 @Import({ SecurityConfig.class })
-@ComponentScan(
-		basePackages = {
-				"com.iservport.*.controller"
-				, "org.springframework.social.iservport.user"
-		})
+@ComponentScan(basePackages = { "org.springframework.social.iservport.user" })
 public class SocialConfig {
 
 	@Inject
