@@ -11,6 +11,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.SignInAdapter;
 import org.springframework.social.iservport.user.RemoteUser;
 import org.springframework.social.iservport.user.RemoteUserRepository;
+import org.springframework.social.iservport.utils.RemoteUserUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
@@ -41,6 +42,7 @@ public class RemoteUserSignInAdapter
 	@Override
 	public String signIn(String userId, Connection<?> connection, NativeWebRequest request) {
 		RemoteUser remoteUser = remoteUserRepository.findById(Integer.valueOf(userId));
+		RemoteUserUtils.signin(remoteUser);
 		return extractOriginalUrl(request);
 	}
 

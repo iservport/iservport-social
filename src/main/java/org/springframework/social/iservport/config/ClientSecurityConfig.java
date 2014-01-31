@@ -15,12 +15,17 @@
  */
 package org.springframework.social.iservport.config;
 
+import javax.inject.Inject;
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
@@ -43,8 +48,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 @Configuration
 @ImportResource("classpath:/META-INF/spring/iservport-client-security.xml")
-public class SecurityConfig {
+@ComponentScan(basePackages = { "org.springframework.social.iservport.user" })
+public class ClientSecurityConfig {
 
+	@Inject
+	private DataSource dataSource;
+	
+	/**
+	 * Allows repositories to access RDBMS data using the JDBC API.
+	 */
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(dataSource);
+	}
+	
+	@Bean
+	public OAuthConnectionDatabaseBootstrap connectionDatabaseBootstrap() {
+		return new OAuthConnectionDatabaseBootstrap(dataSource);
+	}
+	
 	/**
 	 * Embedded Security configuration (not secure).
 	 * @author Keith Donald

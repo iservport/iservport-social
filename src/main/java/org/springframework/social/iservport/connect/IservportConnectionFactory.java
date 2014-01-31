@@ -11,8 +11,8 @@ import org.springframework.social.iservport.utils.RemoteUserUtils;
  */
 public class IservportConnectionFactory extends OAuth2ConnectionFactory<Iservport> {
 	
-    public IservportConnectionFactory() {
-        super("iservport", new IservportServiceProvider(RemoteUserUtils.getCurrentRemoteUser()), new IservportAdapter());
+    public IservportConnectionFactory(String applicationUrl) {
+        super("iservport", new IservportServiceProvider(RemoteUserUtils.getCurrentRemoteUser(), applicationUrl), new IservportAdapter());
     }
     
 }

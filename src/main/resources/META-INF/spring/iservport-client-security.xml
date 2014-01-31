@@ -29,6 +29,8 @@
 		<intercept-url pattern="/signup" access="permitAll" requires-channel="any" />	
 		<intercept-url pattern="/login" access="permitAll" requires-channel="any" />	
 		<intercept-url pattern="/login/*" access="permitAll" requires-channel="any" />	
+		<intercept-url pattern="/signin" access="permitAll" requires-channel="any" />	
+		<intercept-url pattern="/signin/*" access="permitAll" requires-channel="any" />	
 		<intercept-url pattern="/enter/*" access="permitAll" requires-channel="any" />	
 		<intercept-url pattern="/**" access="isAuthenticated()" requires-channel="any" />
 	</http>

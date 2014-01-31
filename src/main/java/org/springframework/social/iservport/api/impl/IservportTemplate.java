@@ -18,7 +18,7 @@ public class IservportTemplate
 	implements Iservport 
 {
 	
-	static final String BASE_URL = "https://api.iservport.com";
+//	static final String BASE_URL = "https://api.iservport.com";
 	
 	private String baseUrl;
 	
@@ -62,7 +62,8 @@ public class IservportTemplate
 	
 	public String getBaseUrl() {
 		if (baseUrl==null) {
-			return BASE_URL;
+			throw new IllegalArgumentException();
+//			return BASE_URL;
 		}
 		return baseUrl;
 	}

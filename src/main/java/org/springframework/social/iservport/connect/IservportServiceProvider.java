@@ -19,11 +19,12 @@ public final class IservportServiceProvider
 	 * Constructor.
 	 * 
 	 * @param remoteUser
+	 * @param applicationUrl
 	 */
-    public IservportServiceProvider(RemoteUser remoteUser) {
+    public IservportServiceProvider(RemoteUser remoteUser, String applicationUrl) {
         super(new OAuth2Template(remoteUser.getId().toString(), "",
-            "https://api.iservport.com/rest/oauth/authorize",
-            "https://api.iservport.com/rest/oauth/token"));
+        		applicationUrl+"/rest/oauth/authorize",
+        		applicationUrl+"/rest/oauth/token"));
     }
 
     public Iservport getApi(String accessToken) {

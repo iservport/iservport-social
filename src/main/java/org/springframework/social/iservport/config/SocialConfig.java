@@ -19,12 +19,10 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.social.connect.Connection;
@@ -52,8 +50,6 @@ import org.springframework.social.iservport.utils.RemoteUserUtils;
  * @author mauriciofernandesdecastro
  */
 @Configuration
-@Import({ SecurityConfig.class })
-@ComponentScan(basePackages = { "org.springframework.social.iservport.user" })
 public class SocialConfig {
 
 	@Inject
@@ -62,19 +58,9 @@ public class SocialConfig {
 	@Inject
 	private TextEncryptor textEncryptor;
 
-	/**
-	 * Allows repositories to access RDBMS data using the JDBC API.
-	 */
-	@Bean
-	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(dataSource);
-	}
-	
-	@Bean
-	public OAuthConnectionDatabaseBootstrap connectionDatabaseBootstrap() {
-		return new OAuthConnectionDatabaseBootstrap(dataSource);
-	}
-	
+	@Inject
+	private Environment env;
+
 	/**
 	 * The locator for SaaS provider connection factories.
 	 * 
@@ -90,7 +76,7 @@ public class SocialConfig {
 //		registry.addConnectionFactory(new TwitterConnectionFactory(environment.getProperty("twitter.consumerKey"), environment.getProperty("twitter.consumerSecret")));
 //		registry.addConnectionFactory(new FacebookConnectionFactory(environment.getProperty("facebook.appId"), environment.getProperty("facebook.appSecret")));
 //		registry.addConnectionFactory(new LinkedInConnectionFactory(environment.getProperty("linkedin.consumerKey"), environment.getProperty("linkedin.consumerSecret")));		
-		registry.addConnectionFactory(new IservportConnectionFactory());
+		registry.addConnectionFactory(new IservportConnectionFactory(env.getProperty("iservport.api.url")));
 		return registry;
 	}
 	
@@ -136,8 +122,10 @@ public class SocialConfig {
 	@Bean
 	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
 	public Iservport iservport() {
-		Connection<Iservport> iservport = connectionRepository().findPrimaryConnection(Iservport.class);
-		return iservport != null ? iservport.getApi() : new IservportTemplate();
+		Connection<Iservport> connection = connectionRepository().findPrimaryConnection(Iservport.class);
+		Iservport iservport = connection != null ? connection.getApi() : new IservportTemplate();
+		((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
+		return iservport;
 	}
 
 	/**
@@ -145,7 +133,9 @@ public class SocialConfig {
 	 */
 	@Bean
     public ConnectController connectController() {
-        return new ConnectController(connectionFactoryLocator(), connectionRepository());
+		ConnectController controller = new ConnectController(connectionFactoryLocator(), connectionRepository());
+		controller.setApplicationUrl(env.getProperty("iservport.api.url"));
+        return controller;
     }
 
 	/**
@@ -156,7 +146,11 @@ public class SocialConfig {
 	 */
 	@Bean
 	public ProviderSignInController providerSignInController(RemoteUserRepository remoteUserRepository, RequestCache requestCache) {
-		return new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository(), new RemoteUserSignInAdapter(remoteUserRepository, requestCache));
+		ProviderSignInController controller 
+			= new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository()
+					, new RemoteUserSignInAdapter(remoteUserRepository, requestCache));
+		controller.setApplicationUrl(env.getProperty("iservport.api.url"));
+		return controller;
 	}
 	
 }
