@@ -28,13 +28,18 @@ public interface RemoteUserRepository {
 	 * Create a new RemoteUser and add it to this repository.
 	 * 
 	 * @param userKey
+	 * @param firstName
+	 * @param lastName
 	 * @param displayName
 	 * @param profileUrl
 	 * @param imageUrl
+	 * @param password
+	 * 
+	 * 
 	 * 
 	 * @throws UserKeyAlreadyOnFileException 
 	 */
-	RemoteUser createRemoteUser(String userKey, String displayName, String profileUrl, String imageUrl) throws UserKeyAlreadyOnFileException;
+	RemoteUser createRemoteUser(String userKey, String firstName, String lastName, String displayName, String profileUrl, String imageUrl, String password) throws UserKeyAlreadyOnFileException;
 
 	/**
 	 * Find an RemoteUser by its internal identifier.

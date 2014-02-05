@@ -43,11 +43,12 @@ public class JdbcRemoteUserRepository
 	}
 
 	@Transactional
-	public RemoteUser createRemoteUser(String userKey, String displayName, String profileUrl, String imageUrl) throws UserKeyAlreadyOnFileException {
+	public RemoteUser createRemoteUser(String userKey, String firstName, String lastName, 
+			String displayName, String profileUrl, String imageUrl, String password) throws UserKeyAlreadyOnFileException {
 		try {
 			jdbcTemplate.update(RemoteUserMapper.INSERT_REMOTE_USER, userKey, displayName, profileUrl, imageUrl);
 			Integer id = jdbcTemplate.queryForInt("call identity()");
-			return new RemoteUser(id, userKey, displayName, profileUrl, imageUrl);
+			return new RemoteUser(id, userKey, firstName, lastName,displayName, profileUrl, imageUrl, password);
 		} catch (DuplicateKeyException e) {
 			throw new UserKeyAlreadyOnFileException(userKey);
 		}
