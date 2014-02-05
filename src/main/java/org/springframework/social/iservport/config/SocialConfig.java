@@ -20,33 +20,27 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.config.annotation.EnableSocial;
 import org.springframework.social.config.annotation.SocialConfigurer;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
-import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.connect.web.ConnectController;
-import org.springframework.social.connect.web.ProviderSignInAttempt;
-import org.springframework.social.connect.web.ProviderSignInController;
-import org.springframework.social.iservport.api.Iservport;
-import org.springframework.social.iservport.api.impl.IservportTemplate;
 import org.springframework.social.iservport.connect.IservportConnectionFactory;
-import org.springframework.social.iservport.connect.RemoteUserSignInAdapter;
+import org.springframework.social.iservport.user.RemoteSocialUserDetailsService;
 import org.springframework.social.iservport.user.RemoteUser;
+import org.springframework.social.iservport.user.RemoteUserDetailsService;
 import org.springframework.social.iservport.user.RemoteUserRepository;
 import org.springframework.social.iservport.utils.RemoteUserUtils;
-import org.springframework.social.security.AuthenticationNameUserIdSource;
+import org.springframework.social.security.SocialUserDetailsService;
 
 /**
  * Spring Social Configuration.
@@ -67,6 +61,9 @@ public class SocialConfig
 
 	@Inject
 	private Environment env;
+
+	@Inject
+	private RemoteUserRepository remoteUserRepository;
 
     @Override
     public void addConnectionFactories(ConnectionFactoryConfigurer cfConfig, Environment env) {
@@ -153,4 +150,19 @@ public class SocialConfig
 //		return controller;
 //	}
 	
+	@Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
+    }
+
+    @Bean
+    public SocialUserDetailsService socialUserDetailsService() {
+        return new RemoteSocialUserDetailsService(userDetailsService());
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new RemoteUserDetailsService(remoteUserRepository);
+    }
+    
 }

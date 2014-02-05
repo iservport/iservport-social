@@ -57,9 +57,11 @@ public class RemoteUser
 	 * @param profileUrl
 	 * @param imageUrl
 	 * @param password
+	 * @param roles
+	 * @param providerType
 	 */
 	public RemoteUser(Integer id, String userKey, String firstName, String lastName, 
-			String displayName, String profileUrl, String imageUrl, String password) {
+			String displayName, String profileUrl, String imageUrl, String password,String roles,ProviderType providerType) {
 		this();
 		setId(id);
 		setUserKey(userKey);
@@ -69,6 +71,8 @@ public class RemoteUser
 		setProfileUrl(profileUrl);
 		setImageUrl(imageUrl);
 		setPassword(password);
+		setRoles(roles);
+		setProviderType(providerType);
 	}
 	
 	public Integer getId() {

@@ -34,12 +34,13 @@ public interface RemoteUserRepository {
 	 * @param profileUrl
 	 * @param imageUrl
 	 * @param password
-	 * 
+	 * @param roles
+	 * @param providerType
 	 * 
 	 * 
 	 * @throws UserKeyAlreadyOnFileException 
 	 */
-	RemoteUser createRemoteUser(String userKey, String firstName, String lastName, String displayName, String profileUrl, String imageUrl, String password) throws UserKeyAlreadyOnFileException;
+	RemoteUser createRemoteUser(String userKey,String firstName, String lastName, String displayName, String profileUrl, String imageUrl, String password, String roles, ProviderType providerType ) throws UserKeyAlreadyOnFileException;
 
 	/**
 	 * Find an RemoteUser by its internal identifier.

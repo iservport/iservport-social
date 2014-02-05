@@ -61,7 +61,7 @@ public class ClientSecurityConfig
 	private DataSource dataSource;
 	
 	@Autowired
-	private UsernamePasswordAuthenticationProvider authenticationProvider;
+	private PasswordEncoder passwordEncoder;
 	
 	/**
 	 * Allows repositories to access RDBMS data using the JDBC API.
@@ -124,8 +124,9 @@ public class ClientSecurityConfig
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-        	.authenticationProvider(authenticationProvider);
+    	auth
+        .userDetailsService(userDetailsService())
+        .passwordEncoder(passwordEncoder);
     }
 
 	/**

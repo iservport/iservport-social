@@ -8,17 +8,17 @@ import org.springframework.social.security.SocialUserDetails;
 import org.springframework.social.security.SocialUserDetailsService;
 
 /**
+ * Remote user details service required by Spring Social.
  * 
  * @author mauriciofernandesdecastro
- *
  */
-public class SimpleSocialUserDetailsService 
+public class RemoteSocialUserDetailsService 
 	implements SocialUserDetailsService 
 {
 
     private UserDetailsService userDetailsService;
 
-    public SimpleSocialUserDetailsService(UserDetailsService userDetailsService) {
+    public RemoteSocialUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -27,4 +27,5 @@ public class SimpleSocialUserDetailsService
         UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
         return (SocialUserDetails) userDetails;
     }
+    
 }
