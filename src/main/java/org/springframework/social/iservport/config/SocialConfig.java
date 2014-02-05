@@ -25,6 +25,10 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.social.UserIdSource;
+import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
+import org.springframework.social.config.annotation.EnableSocial;
+import org.springframework.social.config.annotation.SocialConfigurer;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
@@ -42,15 +46,18 @@ import org.springframework.social.iservport.connect.RemoteUserSignInAdapter;
 import org.springframework.social.iservport.user.RemoteUser;
 import org.springframework.social.iservport.user.RemoteUserRepository;
 import org.springframework.social.iservport.utils.RemoteUserUtils;
+import org.springframework.social.security.AuthenticationNameUserIdSource;
 
 /**
  * Spring Social Configuration.
  *
- * @author Keith Donald
  * @author mauriciofernandesdecastro
  */
 @Configuration
-public class SocialConfig {
+@EnableSocial
+public class SocialConfig 
+	implements SocialConfigurer 
+{
 
 	@Inject
 	private DataSource dataSource;
@@ -61,96 +68,89 @@ public class SocialConfig {
 	@Inject
 	private Environment env;
 
-	/**
-	 * The locator for SaaS provider connection factories.
-	 * 
-	 * When support for a new provider is added to Greenhouse, simply register the corresponding {@link ConnectionFactory} here.
-	 * The current Environment is used to lookup the credentials assigned to the Greenhouse application by each provider during application registration.
-	 * 
-	 * This bean is defined as a scoped-proxy so it can be serialized in support of {@link ProviderSignInAttempt provier sign-in attempts}.
-	 */
-	@Bean
-	@Scope(value="singleton", proxyMode=ScopedProxyMode.INTERFACES)	
-	public ConnectionFactoryLocator connectionFactoryLocator() {
-		ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
-//		registry.addConnectionFactory(new TwitterConnectionFactory(environment.getProperty("twitter.consumerKey"), environment.getProperty("twitter.consumerSecret")));
-//		registry.addConnectionFactory(new FacebookConnectionFactory(environment.getProperty("facebook.appId"), environment.getProperty("facebook.appSecret")));
-//		registry.addConnectionFactory(new LinkedInConnectionFactory(environment.getProperty("linkedin.consumerKey"), environment.getProperty("linkedin.consumerSecret")));		
-		registry.addConnectionFactory(new IservportConnectionFactory(env.getProperty("iservport.api.url")));
-		return registry;
-	}
-	
-	/**
-	 * The shared store for users' connection information.
-	 * 
-	 * Uses a RDBMS-based store accessed with Spring's JdbcTemplate.
-	 * The returned repository encrypts the data using the configured {@link TextEncryptor}.
-	 * 
-	 * This bean is defined as a scoped-proxy so it can be serialized in support of {@link ProviderSignInAttempt provier sign-in attempts}.
-	 */
-	@Bean
-	@Scope(value="singleton", proxyMode=ScopedProxyMode.INTERFACES)
-	public UsersConnectionRepository usersConnectionRepository() {
-		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator(), textEncryptor);
-		usersConnectionRepository.setTablePrefix("core_");
-		return usersConnectionRepository;
-	}
+    @Override
+    public void addConnectionFactories(ConnectionFactoryConfigurer cfConfig, Environment env) {
+        cfConfig.addConnectionFactory(new IservportConnectionFactory(env.getProperty("iservport.api.url")));
+    }
 
-	/**
-	 * A request-scoped bean that provides the data access interface to the current user's connections.
-	 * 
-	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
-	 * If no remote user is authenticated when the target is resolved, an {@link IllegalStateException} is thrown.
-	 * 
-	 * @throws IllegalStateException when no user is authenticated.
-	 */
-	@Bean
-	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
-	public ConnectionRepository connectionRepository() {
-		RemoteUser remoteUser = RemoteUserUtils.getCurrentRemoteUser();
+	
+	@Override
+    public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
+		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor);
+		usersConnectionRepository.setTablePrefix("core_");
+//		usersConnectionRepository.setConnectionSignUp(new SimpleConnectionSignUp());
+		return usersConnectionRepository;
+    }
+
+    @Override
+    public UserIdSource getUserIdSource() {
+		final RemoteUser remoteUser = RemoteUserUtils.getCurrentRemoteUser();
 		if (remoteUser == null) {
 			throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
 		}
-		return usersConnectionRepository().createConnectionRepository(remoteUser.getId().toString());
-	}
+        return new UserIdSource() {
+			@Override
+			public String getUserId() {
+				return remoteUser.getId().toString();
+			}
+        };
+    }
+    
+//	/**
+//	 * A request-scoped bean that provides the data access interface to the current user's connections.
+//	 * 
+//	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
+//	 * If no remote user is authenticated when the target is resolved, an {@link IllegalStateException} is thrown.
+//	 * 
+//	 * @throws IllegalStateException when no user is authenticated.
+//	 */
+//	@Bean
+//	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
+//	public ConnectionRepository connectionRepository() {
+//		RemoteUser remoteUser = RemoteUserUtils.getCurrentRemoteUser();
+//		if (remoteUser == null) {
+//			throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
+//		}
+//		return usersConnectionRepository().createConnectionRepository(remoteUser.getId().toString());
+//	}
 
-	/**
-	 * A request-scoped bean representing the API binding to ISERVPORT for the current user.
-	 * 
-	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
-	 */
-	@Bean
-	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
-	public Iservport iservport() {
-		Connection<Iservport> connection = connectionRepository().findPrimaryConnection(Iservport.class);
-		Iservport iservport = connection != null ? connection.getApi() : new IservportTemplate();
-		((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
-		return iservport;
-	}
+//	/**
+//	 * A request-scoped bean representing the API binding to ISERVPORT for the current user.
+//	 * 
+//	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
+//	 */
+//	@Bean
+//	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
+//	public Iservport iservport() {
+//		Connection<Iservport> connection = connectionRepository().findPrimaryConnection(Iservport.class);
+//		Iservport iservport = connection != null ? connection.getApi() : new IservportTemplate();
+//		((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
+//		return iservport;
+//	}
 
 	/**
 	 * The Spring MVC Controller that coordinates connections to service providers on behalf of users.
 	 */
 	@Bean
-    public ConnectController connectController() {
-		ConnectController controller = new ConnectController(connectionFactoryLocator(), connectionRepository());
+    public ConnectController connectController(ConnectionFactoryLocator connectionFactoryLocator, ConnectionRepository connectionRepository) {
+		ConnectController controller = new ConnectController(connectionFactoryLocator, connectionRepository);
 		controller.setApplicationUrl(env.getProperty("iservport.api.url"));
         return controller;
     }
 
-	/**
-	 * The Spring MVC Controller that coordinates "sign-in with {provider}" attempts.
-	 * 
-	 * @param remoteUserRepository
-	 * @param requestCache
-	 */
-	@Bean
-	public ProviderSignInController providerSignInController(RemoteUserRepository remoteUserRepository, RequestCache requestCache) {
-		ProviderSignInController controller 
-			= new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository()
-					, new RemoteUserSignInAdapter(remoteUserRepository, requestCache));
-		controller.setApplicationUrl(env.getProperty("iservport.api.url"));
-		return controller;
-	}
+//	/**
+//	 * The Spring MVC Controller that coordinates "sign-in with {provider}" attempts.
+//	 * 
+//	 * @param remoteUserRepository
+//	 * @param requestCache
+//	 */
+//	@Bean
+//	public ProviderSignInController providerSignInController(RemoteUserRepository remoteUserRepository, RequestCache requestCache) {
+//		ProviderSignInController controller 
+//			= new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository()
+//					, new RemoteUserSignInAdapter(remoteUserRepository, requestCache));
+//		controller.setApplicationUrl(env.getProperty("iservport.api.url"));
+//		return controller;
+//	}
 	
 }

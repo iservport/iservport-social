@@ -15,22 +15,26 @@
  */
 package org.springframework.social.iservport.config;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.social.iservport.user.UsernamePasswordAuthenticationProvider;
+import org.springframework.social.security.SpringSocialConfigurer;
 
 /**
  * Spring Security encryption Configuration.
@@ -47,12 +51,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author mauriciofernandesdecastro
  */
 @Configuration
-@ImportResource("classpath:/META-INF/spring/iservport-client-security.xml")
+//@ImportResource("classpath:/META-INF/spring/iservport-client-security.xml")
 @ComponentScan(basePackages = { "org.springframework.social.iservport.user" })
-public class ClientSecurityConfig {
+public class ClientSecurityConfig 
+	extends WebSecurityConfigurerAdapter
+{
 
-	@Inject
+	@Autowired
 	private DataSource dataSource;
+	
+	@Autowired
+	private UsernamePasswordAuthenticationProvider authenticationProvider;
 	
 	/**
 	 * Allows repositories to access RDBMS data using the JDBC API.
@@ -67,6 +76,58 @@ public class ClientSecurityConfig {
 		return new OAuthConnectionDatabaseBootstrap(dataSource);
 	}
 	
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web
+			//Spring Security ignores request to static resources such as CSS or JS files.
+			.ignoring()
+		    .antMatchers("/webjars/**")
+		    .antMatchers("/images/**")
+		    .antMatchers("/css/**");
+    }
+    
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            //Configures form login
+            .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login/authenticate")
+                .failureUrl("/login?error=bad_credentials")
+            //Configures the logout function
+            .and()
+                .logout()
+                    .deleteCookies("JSESSIONID")
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/login")
+            //Configures url based authorization
+            .and()
+                .authorizeRequests()
+                    //Anyone can access the urls
+                    .antMatchers(
+                            "/auth/**",
+                            "/health/**",
+                            "/login",
+                            "/login/**",
+                            "/signin",
+                            "/signin/**",
+                            "/signup/**",
+                            "/enter/**",
+                            "/user/register/**"
+                    ).permitAll()
+                    //The rest of the our application is protected.
+                    .antMatchers("/**").hasRole("ROLE_USER")
+            //Adds the SocialAuthenticationFilter to Spring Security's filter chain.
+	            .and()
+	                .apply(new SpringSocialConfigurer());
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+        	.authenticationProvider(authenticationProvider);
+    }
+
 	/**
 	 * Embedded Security configuration (not secure).
 	 * @author Keith Donald

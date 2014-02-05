@@ -20,7 +20,7 @@ public class RemoteUserMapper
 	 * SELECT clause for RemoteUser fields.
 	 */
 	public static final String SELECT_REMOTE_USER
-		= "select id, userKey, displayName, profileUrl, imageUrl from core_RemoteUser";
+		= "select id, userKey, firstName, lastName, displayName, profileUrl, imageUrl from core_RemoteUser";
 
 	
 	/**

@@ -19,14 +19,28 @@ public class RemoteUser
 	
 	private String userKey = "";
 	
+	private String firstName = "";
+	
+	private String lastName = "";
+	
 	private String displayName = "";
 	
 	private String profileUrl = "";
 	
+	private String password = "";
+	
 	private String imageUrl = "";
+	
+	private String roles = "";
+	
+	private ProviderType providerType = ProviderType.iservport;
 	
 	/**
 	 * Constructor.
+	 * 
+	 * @param displayName
+	 * @param password
+	 * @param authorities
 	 */
 	public RemoteUser() {
 		super();
@@ -37,17 +51,24 @@ public class RemoteUser
 	 * 
 	 * @param id
 	 * @param userKey
+	 * @param firstName
+	 * @param lastName
 	 * @param displayName
 	 * @param profileUrl
 	 * @param imageUrl
+	 * @param password
 	 */
-	public RemoteUser(Integer id, String userKey, String displayName, String profileUrl, String imageUrl) {
+	public RemoteUser(Integer id, String userKey, String firstName, String lastName, 
+			String displayName, String profileUrl, String imageUrl, String password) {
 		this();
 		setId(id);
 		setUserKey(userKey);
+		setFirstName(firstName);
+		setLastName(lastName);
 		setDisplayName(displayName);
 		setProfileUrl(profileUrl);
 		setImageUrl(imageUrl);
+		setPassword(password);
 	}
 	
 	public Integer getId() {
@@ -64,11 +85,32 @@ public class RemoteUser
 		this.userKey = userKey;
 	}
 	
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	
 	public String getDisplayName() {
 		return displayName;
 	}
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	public String getProfileUrl() {
@@ -90,6 +132,20 @@ public class RemoteUser
 		values.setDisplayName(displayName);
 		values.setProfileUrl(profileUrl);
 		values.setImageUrl(imageUrl);
+	}
+	
+	public String getRoles() {
+		return roles;
+	}
+	public void setRoles(String roles) {
+		this.roles = roles;
+	}
+	
+	public ProviderType getProviderType() {
+		return providerType;
+	}
+	public void setProviderType(ProviderType providerType) {
+		this.providerType = providerType;
 	}
 
 }
