@@ -21,19 +21,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.social.iservport.user.UsernamePasswordAuthenticationProvider;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 /**
@@ -53,6 +48,7 @@ import org.springframework.social.security.SpringSocialConfigurer;
 @Configuration
 //@ImportResource("classpath:/META-INF/spring/iservport-client-security.xml")
 @ComponentScan(basePackages = { "org.springframework.social.iservport.user" })
+@EnableWebSecurity
 public class ClientSecurityConfig 
 	extends WebSecurityConfigurerAdapter
 {
@@ -60,9 +56,11 @@ public class ClientSecurityConfig
 	@Autowired
 	private DataSource dataSource;
 	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
+	@Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
+    }
+
 	/**
 	 * Allows repositories to access RDBMS data using the JDBC API.
 	 */
@@ -116,7 +114,7 @@ public class ClientSecurityConfig
                             "/user/register/**"
                     ).permitAll()
                     //The rest of the our application is protected.
-                    .antMatchers("/**").hasRole("ROLE_USER")
+                    .antMatchers("/**").hasRole("USER")
             //Adds the SocialAuthenticationFilter to Spring Security's filter chain.
 	            .and()
 	                .apply(new SpringSocialConfigurer());
@@ -126,60 +124,7 @@ public class ClientSecurityConfig
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     	auth
         .userDetailsService(userDetailsService())
-        .passwordEncoder(passwordEncoder);
+        .passwordEncoder(passwordEncoder());
     }
 
-	/**
-	 * Embedded Security configuration (not secure).
-	 * @author Keith Donald
-	 */
-	@Configuration
-	@Profile("embedded")
-	static class Embedded {
-
-		@Bean
-		public PasswordEncoder passwordEncoder() {
-			return NoOpPasswordEncoder.getInstance();
-		}
-		
-		@Bean
-		public TextEncryptor textEncryptor() {
-			return Encryptors.noOpText();
-		}
-		
-	}
-
-	/**
-	 * Standard security configuration (secure).
-	 * 
-	 * Passwords encoded using Blow Fish Algorithm.
-	 * 
-	 * @author Keith Donald
-	 * @author mauriciofernandesdecastro
-	 */
-	@Configuration
-	@Profile("standard")
-	static class Standard {
-
-		@Autowired
-		private Environment environment;
-
-		@Bean
-		public PasswordEncoder passwordEncoder() {
-			return new BCryptPasswordEncoder();
-		}
-
-		@Bean
-		public TextEncryptor textEncryptor() {
-			return Encryptors.queryableText(getEncryptPassword(), environment.getProperty("security.encryptSalt"));
-		}
-
-		// helpers
-		
-		private String getEncryptPassword() {
-			return environment.getProperty("security.encryptPassword");
-		}
-		
-	}
-	
 }

@@ -15,16 +15,15 @@
  */
 package org.springframework.social.iservport.config;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.config.annotation.EnableSocial;
@@ -53,16 +52,13 @@ public class SocialConfig
 	implements SocialConfigurer 
 {
 
-	@Inject
+	@Autowired
 	private DataSource dataSource;
 	
-	@Inject
-	private TextEncryptor textEncryptor;
-
-	@Inject
+	@Autowired
 	private Environment env;
 
-	@Inject
+	@Autowired
 	private RemoteUserRepository remoteUserRepository;
 
     @Override
@@ -73,7 +69,7 @@ public class SocialConfig
 	
 	@Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
-		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor);
+		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor());
 		usersConnectionRepository.setTablePrefix("core_");
 //		usersConnectionRepository.setConnectionSignUp(new SimpleConnectionSignUp());
 		return usersConnectionRepository;
@@ -150,11 +146,6 @@ public class SocialConfig
 //		return controller;
 //	}
 	
-	@Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
-
     @Bean
     public SocialUserDetailsService socialUserDetailsService() {
         return new RemoteSocialUserDetailsService(userDetailsService());
@@ -165,4 +156,15 @@ public class SocialConfig
         return new RemoteUserDetailsService(remoteUserRepository);
     }
     
+	@Bean
+	public TextEncryptor textEncryptor() {
+		return Encryptors.queryableText(getEncryptPassword(), env.getProperty("security.encryptSalt"));
+	}
+
+	// helpers
+	
+	private String getEncryptPassword() {
+		return env.getProperty("security.encryptPassword");
+	}
+	
 }
