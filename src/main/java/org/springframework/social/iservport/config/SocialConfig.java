@@ -20,6 +20,8 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.encrypt.Encryptors;
@@ -28,11 +30,14 @@ import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.config.annotation.EnableSocial;
 import org.springframework.social.config.annotation.SocialConfigurer;
+import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.connect.web.ConnectController;
+import org.springframework.social.iservport.api.Iservport;
+import org.springframework.social.iservport.api.impl.IservportTemplate;
 import org.springframework.social.iservport.connect.IservportConnectionFactory;
 import org.springframework.social.iservport.user.RemoteSocialUserDetailsService;
 import org.springframework.social.iservport.user.RemoteUser;
@@ -107,19 +112,19 @@ public class SocialConfig
 //		return usersConnectionRepository().createConnectionRepository(remoteUser.getId().toString());
 //	}
 
-//	/**
-//	 * A request-scoped bean representing the API binding to ISERVPORT for the current user.
-//	 * 
-//	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
-//	 */
-//	@Bean
-//	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
-//	public Iservport iservport() {
-//		Connection<Iservport> connection = connectionRepository().findPrimaryConnection(Iservport.class);
-//		Iservport iservport = connection != null ? connection.getApi() : new IservportTemplate();
-//		((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
-//		return iservport;
-//	}
+	/**
+	 * A request-scoped bean representing the API binding to ISERVPORT for the current user.
+	 * 
+	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
+	 */
+	@Bean
+	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
+	public Iservport iservport(ConnectionRepository repository) {
+		Connection<Iservport> connection = repository.findPrimaryConnection(Iservport.class);
+		Iservport iservport = connection != null ? connection.getApi() : new IservportTemplate();
+		((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
+		return iservport;
+	}
 
 	/**
 	 * The Spring MVC Controller that coordinates connections to service providers on behalf of users.
