@@ -46,7 +46,6 @@ import org.springframework.social.security.SpringSocialConfigurer;
  * @author mauriciofernandesdecastro
  */
 @Configuration
-//@ImportResource("classpath:/META-INF/spring/iservport-client-security.xml")
 @ComponentScan(basePackages = { "org.springframework.social.iservport.user" })
 @EnableWebSecurity
 public class ClientSecurityConfig 
@@ -87,6 +86,7 @@ public class ClientSecurityConfig
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+        	.csrf().disable()
             //Configures form login
             .formLogin()
                 .loginPage("/login")
@@ -103,10 +103,10 @@ public class ClientSecurityConfig
                 .authorizeRequests()
                     //Anyone can access the urls
                     .antMatchers(
-                            "/auth/**",
+                            "/rest/**", // all rquests with rest are authorized by iservport api
                             "/health/**",
                             "/login",
-                            "/login/**",
+                            "/login/*",
                             "/signin",
                             "/signin/**",
                             "/signup/**",
@@ -114,7 +114,7 @@ public class ClientSecurityConfig
                             "/user/register/**"
                     ).permitAll()
                     //The rest of the our application is protected.
-                    .antMatchers("/**").hasRole("USER")
+//                    .antMatchers("/**").hasRole("USER")
             //Adds the SocialAuthenticationFilter to Spring Security's filter chain.
 	            .and()
 	                .apply(new SpringSocialConfigurer());
