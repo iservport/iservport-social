@@ -1,4 +1,5 @@
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.repository;
+
 
 /**
  * The password entered during an sign-in attempt was invalid.

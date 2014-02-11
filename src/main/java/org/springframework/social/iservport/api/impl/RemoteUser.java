@@ -1,8 +1,10 @@
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.api.impl;
 
 import java.io.Serializable;
 
 import org.springframework.social.connect.ConnectionValues;
+import org.springframework.social.connect.UserProfile;
+import org.springframework.social.iservport.api.ProviderType;
 
 /**
  * Representation of a remote user.
@@ -37,13 +39,21 @@ public class RemoteUser
 	
 	/**
 	 * Constructor.
-	 * 
-	 * @param displayName
-	 * @param password
-	 * @param authorities
 	 */
 	public RemoteUser() {
 		super();
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param userProfile
+	 */
+	public RemoteUser(UserProfile userProfile) {
+		this();
+		this.firstName = userProfile.getFirstName();
+		this.lastName = userProfile.getLastName();
+		this.userKey = userProfile.getEmail();
 	}
 	
 	/**
@@ -61,7 +71,8 @@ public class RemoteUser
 	 * @param providerType
 	 */
 	public RemoteUser(Integer id, String userKey, String firstName, String lastName, 
-			String displayName, String profileUrl, String imageUrl, String password,String roles,ProviderType providerType) {
+			String displayName, String profileUrl, String imageUrl, String password,
+			String roles, ProviderType providerType) {
 		this();
 		setId(id);
 		setUserKey(userKey);

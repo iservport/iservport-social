@@ -1,7 +1,9 @@
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -9,6 +11,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.social.connect.UserProfile;
+import org.springframework.social.iservport.api.ProviderType;
+import org.springframework.social.iservport.api.impl.RemoteUser;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,19 +41,36 @@ public class JdbcRemoteUserRepository
 	 * @param remoteUserMapper
 	 */
 	@Autowired
-	public JdbcRemoteUserRepository(JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder, RemoteUserMapper remoteUserMapper) {
-		this.jdbcTemplate = jdbcTemplate;
+	public JdbcRemoteUserRepository(DataSource dataSource, PasswordEncoder passwordEncoder, RemoteUserMapper remoteUserMapper) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.passwordEncoder = passwordEncoder;
 		this.remoteUserMapper = remoteUserMapper;
 	}
 
 	@Transactional
+	public RemoteUser createRemoteUser(UserProfile userProfile, 
+			String displayName, String profileUrl, String imageUrl, String password, String roles,
+			ProviderType providerType) throws UserKeyAlreadyOnFileException {
+		try {
+			jdbcTemplate.update(RemoteUserMapper.INSERT_REMOTE_USER, userProfile.getEmail(), displayName, profileUrl
+					, imageUrl);
+			Integer id = jdbcTemplate.queryForInt("call identity()");
+			return new RemoteUser(id, userProfile.getEmail(), userProfile.getFirstName(), userProfile.getLastName()
+					, displayName, profileUrl, imageUrl, password, roles, providerType);
+		} catch (DuplicateKeyException e) {
+			throw new UserKeyAlreadyOnFileException(userProfile.getEmail());
+		}
+	}
+
+	@Transactional
 	public RemoteUser createRemoteUser(String userKey, String firstName, String lastName, 
-			String displayName, String profileUrl, String imageUrl, String password, String roles,ProviderType providerType) throws UserKeyAlreadyOnFileException {
+			String displayName, String profileUrl, String imageUrl, String password, String roles,
+			ProviderType providerType) throws UserKeyAlreadyOnFileException {
 		try {
 			jdbcTemplate.update(RemoteUserMapper.INSERT_REMOTE_USER, userKey, displayName, profileUrl, imageUrl);
 			Integer id = jdbcTemplate.queryForInt("call identity()");
-			return new RemoteUser(id, userKey, firstName, lastName,displayName, profileUrl, imageUrl, password, roles, providerType);
+			return new RemoteUser(id, userKey, firstName, lastName, displayName, profileUrl, imageUrl
+					, password, roles, providerType);
 		} catch (DuplicateKeyException e) {
 			throw new UserKeyAlreadyOnFileException(userKey);
 		}

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.repository;
+
 
 /**
  * The provided signin name could not be mapped.

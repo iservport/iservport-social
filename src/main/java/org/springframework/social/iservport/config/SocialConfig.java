@@ -20,11 +20,10 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
@@ -35,16 +34,12 @@ import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
-import org.springframework.social.connect.web.ConnectController;
 import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.iservport.api.impl.IservportTemplate;
+import org.springframework.social.iservport.api.impl.RemoteUser;
 import org.springframework.social.iservport.connect.IservportConnectionFactory;
-import org.springframework.social.iservport.user.RemoteSocialUserDetailsService;
-import org.springframework.social.iservport.user.RemoteUser;
-import org.springframework.social.iservport.user.RemoteUserDetailsService;
-import org.springframework.social.iservport.user.RemoteUserRepository;
+import org.springframework.social.iservport.repository.RemoteUserRepository;
 import org.springframework.social.iservport.utils.RemoteUserUtils;
-import org.springframework.social.security.SocialUserDetailsService;
 
 /**
  * Spring Social Configuration.
@@ -53,6 +48,7 @@ import org.springframework.social.security.SocialUserDetailsService;
  */
 @Configuration
 @EnableSocial
+@Import({ MainConfig.class })
 public class SocialConfig 
 	implements SocialConfigurer 
 {
@@ -66,20 +62,37 @@ public class SocialConfig
 	@Autowired
 	private RemoteUserRepository remoteUserRepository;
 
+	@Autowired
+	private TextEncryptor textEncryptor;
+
+	/**
+	 * Create database if necessary.
+	 */
+	@Bean
+	public OAuthConnectionDatabaseBootstrap connectionDatabaseBootstrap() {
+		return new OAuthConnectionDatabaseBootstrap(dataSource);
+	}
+	
+	/**
+	 * 
+	 */
     @Override
-    public void addConnectionFactories(ConnectionFactoryConfigurer cfConfig, Environment env) {
-        cfConfig.addConnectionFactory(new IservportConnectionFactory(env.getProperty("iservport.api.url")));
+    public void addConnectionFactories(ConnectionFactoryConfigurer configurer, Environment env) {
+        configurer.addConnectionFactory(new IservportConnectionFactory(env.getProperty("iservport.api.url")));
     }
 
 	
 	@Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
-		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor());
+		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor);
 		usersConnectionRepository.setTablePrefix("core_");
 //		usersConnectionRepository.setConnectionSignUp(new SimpleConnectionSignUp());
 		return usersConnectionRepository;
     }
 
+	/**
+	 * 
+	 */
     @Override
     public UserIdSource getUserIdSource() {
 		final RemoteUser remoteUser = RemoteUserUtils.getCurrentRemoteUser();
@@ -94,24 +107,6 @@ public class SocialConfig
         };
     }
     
-//	/**
-//	 * A request-scoped bean that provides the data access interface to the current user's connections.
-//	 * 
-//	 * Since it is a scoped-proxy, references to this bean MAY be injected at application startup time.
-//	 * If no remote user is authenticated when the target is resolved, an {@link IllegalStateException} is thrown.
-//	 * 
-//	 * @throws IllegalStateException when no user is authenticated.
-//	 */
-//	@Bean
-//	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
-//	public ConnectionRepository connectionRepository() {
-//		RemoteUser remoteUser = RemoteUserUtils.getCurrentRemoteUser();
-//		if (remoteUser == null) {
-//			throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
-//		}
-//		return usersConnectionRepository().createConnectionRepository(remoteUser.getId().toString());
-//	}
-
 	/**
 	 * A request-scoped bean representing the API binding to ISERVPORT for the current user.
 	 * 
@@ -121,55 +116,12 @@ public class SocialConfig
 	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
 	public Iservport iservport(ConnectionRepository repository) {
 		Connection<Iservport> connection = repository.findPrimaryConnection(Iservport.class);
-		Iservport iservport = connection != null ? connection.getApi() : new IservportTemplate();
-		((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
-		return iservport;
+		if (connection != null) {
+			Iservport iservport = connection.getApi();
+			((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
+			return iservport;
+		}
+		return null;
 	}
 
-	/**
-	 * The Spring MVC Controller that coordinates connections to service providers on behalf of users.
-	 */
-	@Bean
-    public ConnectController connectController(ConnectionFactoryLocator connectionFactoryLocator, ConnectionRepository connectionRepository) {
-		ConnectController controller = new ConnectController(connectionFactoryLocator, connectionRepository);
-		controller.setApplicationUrl(env.getProperty("iservport.api.url"));
-        return controller;
-    }
-
-//	/**
-//	 * The Spring MVC Controller that coordinates "sign-in with {provider}" attempts.
-//	 * 
-//	 * @param remoteUserRepository
-//	 * @param requestCache
-//	 */
-//	@Bean
-//	public ProviderSignInController providerSignInController(RemoteUserRepository remoteUserRepository, RequestCache requestCache) {
-//		ProviderSignInController controller 
-//			= new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository()
-//					, new RemoteUserSignInAdapter(remoteUserRepository, requestCache));
-//		controller.setApplicationUrl(env.getProperty("iservport.api.url"));
-//		return controller;
-//	}
-	
-    @Bean
-    public SocialUserDetailsService socialUserDetailsService() {
-        return new RemoteSocialUserDetailsService(userDetailsService());
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new RemoteUserDetailsService(remoteUserRepository);
-    }
-    
-	@Bean
-	public TextEncryptor textEncryptor() {
-		return Encryptors.queryableText(getEncryptPassword(), env.getProperty("security.encryptSalt"));
-	}
-
-	// helpers
-	
-	private String getEncryptPassword() {
-		return env.getProperty("security.encryptPassword");
-	}
-	
 }

@@ -33,10 +33,21 @@
 		<!-- Test -->
 		<junit.version>4.11</junit.version>
 
+		<org.springframework.social.facebook-version>1.1.0.BUILD-SNAPSHOT</org.springframework.social.facebook-version>
+		
 	</properties>
 	
 	<dependencies>
 	
+	<!-- 
+		<dependency>
+		    <groupId>org.springframework.social</groupId>
+		    <artifactId>spring-social-facebook</artifactId>
+	        <version>${org.springframework.social.facebook-version}</version>
+	        <exclusions></exclusions>
+	    </dependency>
+	    -->
+	    
 		<!-- Spring MVC -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -91,12 +102,6 @@
 		    <version>4.3.2</version>
 		</dependency>
 		
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.13</version>
-		</dependency>
-		  
 		<!-- Spring Security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -153,6 +158,12 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.2.9</version>
 			<scope>test</scope>
 		</dependency>
 

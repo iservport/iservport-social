@@ -6,7 +6,7 @@ import org.springframework.social.connect.ConnectionValues;
 import org.springframework.social.connect.UserProfile;
 import org.springframework.social.connect.UserProfileBuilder;
 import org.springframework.social.iservport.api.Iservport;
-import org.springframework.social.iservport.user.RemoteUser;
+import org.springframework.social.iservport.api.impl.RemoteUser;
 
 /**
  * Iservport API adapter.
@@ -42,8 +42,10 @@ public class IservportAdapter
 	public UserProfile fetchUserProfile(Iservport api) {
 		RemoteUser user = api.getProfile();
 		return new UserProfileBuilder()
-				.setName(user.getUserKey())
-				.setUsername(user.getDisplayName())
+				.setFirstName(user.getFirstName())
+				.setLastName(user.getLastName())
+				.setUsername(user.getUserKey())
+				.setEmail(user.getUserKey())
 			.build();
 	}
 

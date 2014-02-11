@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.repository;
+
+import org.springframework.social.connect.UserProfile;
+import org.springframework.social.iservport.api.ProviderType;
+import org.springframework.social.iservport.api.impl.RemoteUser;
 
 
 
@@ -23,6 +27,10 @@ package org.springframework.social.iservport.user;
  * @author mauriciofernandesdecastro
  */
 public interface RemoteUserRepository {
+	
+	RemoteUser createRemoteUser(UserProfile userProfile, 
+			String displayName, String profileUrl, String imageUrl, String password, String roles,
+			ProviderType providerType) throws UserKeyAlreadyOnFileException;
 
 	/**
 	 * Create a new RemoteUser and add it to this repository.

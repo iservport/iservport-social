@@ -1,4 +1,4 @@
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.api;
 
 /**
  * Authorization provider types.

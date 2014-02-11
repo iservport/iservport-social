@@ -9,8 +9,8 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.SignInAdapter;
-import org.springframework.social.iservport.user.RemoteUser;
-import org.springframework.social.iservport.user.RemoteUserRepository;
+import org.springframework.social.iservport.api.impl.RemoteUser;
+import org.springframework.social.iservport.repository.RemoteUserRepository;
 import org.springframework.social.iservport.utils.RemoteUserUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 

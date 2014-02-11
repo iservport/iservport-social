@@ -3,7 +3,7 @@ package org.springframework.social.iservport.api;
 import java.util.Map;
 
 import org.springframework.social.ApiBinding;
-import org.springframework.social.iservport.user.RemoteUser;
+import org.springframework.social.iservport.api.impl.RemoteUser;
 
 /**
  * Iservpor API binding.
@@ -37,6 +37,9 @@ public interface Iservport extends ApiBinding
 	 */
 	String applyPost(String uri, Object request);
 	
+	/**
+	 * The user profile.
+	 */
 	RemoteUser getProfile();
 	
 }

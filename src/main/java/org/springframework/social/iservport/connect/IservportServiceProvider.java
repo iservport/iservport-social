@@ -14,6 +14,8 @@ public final class IservportServiceProvider
 	extends AbstractOAuth2ServiceProvider<Iservport> 
 {
 
+	private final String applicationUrl;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -26,10 +28,11 @@ public final class IservportServiceProvider
         super(new OAuth2Template(clientId, secret,
         		applicationUrl+"/rest/oauth/authorize",
         		applicationUrl+"/rest/oauth/token"));
+        this.applicationUrl = applicationUrl;
     }
 
     public Iservport getApi(String accessToken) {
-        return new IservportTemplate(accessToken);
+        return new IservportTemplate(accessToken, applicationUrl);
     }
 
 }

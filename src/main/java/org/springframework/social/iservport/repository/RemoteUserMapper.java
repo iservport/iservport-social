@@ -1,9 +1,11 @@
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.social.iservport.api.ProviderType;
+import org.springframework.social.iservport.api.impl.RemoteUser;
 import org.springframework.stereotype.Component;
 
 /**

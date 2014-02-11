@@ -6,7 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.social.iservport.user.RemoteUser;
+import org.springframework.social.iservport.api.impl.RemoteUser;
 
 /**
  * Some static helper methods related to RemoteUsers.

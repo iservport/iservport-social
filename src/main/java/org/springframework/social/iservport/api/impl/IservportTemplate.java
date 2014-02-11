@@ -1,12 +1,14 @@
 package org.springframework.social.iservport.api.impl;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
 import org.springframework.social.iservport.api.Iservport;
-import org.springframework.social.iservport.user.RemoteUser;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.support.URIBuilder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Iservport template.
@@ -18,16 +20,28 @@ public class IservportTemplate
 	implements Iservport 
 {
 	
-//	static final String BASE_URL = "https://api.iservport.com";
+	private static final String DEFAULT_BASE_URL = "https://api.iservport.com";
 	
 	private String baseUrl;
 	
-    public IservportTemplate() {
-        super();
-    }
-    
+	/**
+	 * Access token template constructor.
+	 * 
+	 * @param accessToken
+	 */
     public IservportTemplate(String accessToken) {
+        this(accessToken, DEFAULT_BASE_URL);
+    }
+
+    /**
+	 * Access token template and base url constructor.
+     * 
+     * @param accessToken
+     * @param baseUrl
+     */
+    public IservportTemplate(String accessToken, String baseUrl) {
         super(accessToken);
+        setBaseUrl(baseUrl);
     }
 
 	@Override
@@ -47,8 +61,21 @@ public class IservportTemplate
     
 	@Override
 	public RemoteUser getProfile() {
-		// TODO Auto-generated method stub
-		return null;
+		RemoteUser remoteUser = new RemoteUser();
+		String userMap = getRestTemplate().getForObject(buildURI("/rest/adm/user/get"), String.class);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			Map<?,?> userAsMap = mapper.readValue(userMap, Map.class);
+			remoteUser.setId((Integer) userAsMap.get("id"));
+			remoteUser.setUserKey((String) userAsMap.get("userKey"));
+			remoteUser.setFirstName((String) userAsMap.get("userFirstName"));
+			remoteUser.setLastName((String) userAsMap.get("userLastName"));
+			remoteUser.setDisplayName((String) userAsMap.get("displayName"));
+			remoteUser.setImageUrl((String) userAsMap.get("imageUrl"));
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Unable to read profile.");
+		}
+		return remoteUser;
 	}
 	
 	/**
@@ -63,7 +90,6 @@ public class IservportTemplate
 	public String getBaseUrl() {
 		if (baseUrl==null) {
 			throw new IllegalArgumentException();
-//			return BASE_URL;
 		}
 		return baseUrl;
 	}

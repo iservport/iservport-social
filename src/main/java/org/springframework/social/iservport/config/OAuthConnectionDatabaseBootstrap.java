@@ -69,7 +69,9 @@ public class OAuthConnectionDatabaseBootstrap
 			connection = dataSource.getConnection();
 			DatabaseMetaData metadata = connection.getMetaData();
 			if (!exists(metadata, "core_UserConnection")) {
+				logger.info("core_UserConnection does not exist, creating...");
 				create(connection, userConnectionTableDdl, userConnectionIndexDdl);
+				logger.info("Done");
 			}
 			if (!exists(metadata, "core_RemoteUser")) {
 				create(connection, remoteUserTableDdl);
@@ -105,7 +107,14 @@ public class OAuthConnectionDatabaseBootstrap
 				exists = true;
 			}
 			else {
-				exists = false;
+				result = metadata.getTables(null, null, tableName.toUpperCase(), null);
+				if (result.next()) {
+					logger.info("{} table found.", tableName.toUpperCase());
+					exists = true;
+				}
+				else {
+					exists = false;
+				}
 			}
 		} finally {
 			result.close();

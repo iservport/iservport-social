@@ -1,4 +1,5 @@
-package org.springframework.social.iservport.user;
+package org.springframework.social.iservport.repository;
+
 
 /**
  * Sign-up failed because the provided user key is already on file.
