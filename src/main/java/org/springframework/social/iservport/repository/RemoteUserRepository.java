@@ -15,7 +15,6 @@
  */
 package org.springframework.social.iservport.repository;
 
-import org.springframework.social.connect.UserProfile;
 import org.springframework.social.iservport.api.ProviderType;
 import org.springframework.social.iservport.api.impl.RemoteUser;
 
@@ -28,9 +27,7 @@ import org.springframework.social.iservport.api.impl.RemoteUser;
  */
 public interface RemoteUserRepository {
 	
-	RemoteUser createRemoteUser(UserProfile userProfile, 
-			String displayName, String profileUrl, String imageUrl, String password, String roles,
-			ProviderType providerType) throws UserKeyAlreadyOnFileException;
+	RemoteUser createRemoteUser(RemoteUser remoteUser) throws UserKeyAlreadyOnFileException;
 
 	/**
 	 * Create a new RemoteUser and add it to this repository.
@@ -74,4 +71,5 @@ public interface RemoteUserRepository {
 	 * @throws InvalidPasswordException
 	 */
 	RemoteUser authenticate(String userKey, String password) throws UserKeyNotFoundException, InvalidPasswordException;
+	
 }

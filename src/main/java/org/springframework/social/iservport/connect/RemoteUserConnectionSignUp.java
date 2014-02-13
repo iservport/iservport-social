@@ -4,6 +4,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UserProfile;
 import org.springframework.social.iservport.api.ProviderType;
+import org.springframework.social.iservport.api.impl.IservportTemplate;
 import org.springframework.social.iservport.api.impl.RemoteUser;
 import org.springframework.social.iservport.repository.RemoteUserRepository;
 import org.springframework.social.iservport.repository.UserKeyAlreadyOnFileException;
@@ -22,8 +23,8 @@ public class RemoteUserConnectionSignUp implements ConnectionSignUp {
     }
 
     public String execute(Connection<?> connection) {
-        UserProfile profile = connection.fetchUserProfile();
-        RemoteUser remoteUser = new RemoteUser(profile);
+    	IservportTemplate iservport = (IservportTemplate) connection.getApi();
+    	RemoteUser remoteUser = iservport.getProfile();
         try {
 			remoteUserRepository.createRemoteUser(profile, "", "", "", "", "", ProviderType.iservport);
 		} catch (UserKeyAlreadyOnFileException e) {
