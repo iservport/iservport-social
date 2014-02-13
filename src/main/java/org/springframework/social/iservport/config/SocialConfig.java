@@ -74,14 +74,16 @@ public class SocialConfig
 	}
 	
 	/**
-	 * 
+	 * Configure iservport connection factory.
 	 */
     @Override
     public void addConnectionFactories(ConnectionFactoryConfigurer configurer, Environment env) {
         configurer.addConnectionFactory(new IservportConnectionFactory(env.getProperty("iservport.api.url")));
     }
 
-	
+	/**
+	 * Configure jdbc connection repository.
+	 */
 	@Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
 		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor);
@@ -91,7 +93,7 @@ public class SocialConfig
     }
 
 	/**
-	 * 
+	 * Configure the user id.
 	 */
     @Override
     public UserIdSource getUserIdSource() {
