@@ -28,5 +28,5 @@ public enum ProviderType {
 	public boolean isAcceptEmail() {
 		return this.acceptEmail;
 	}
-
+	
 }

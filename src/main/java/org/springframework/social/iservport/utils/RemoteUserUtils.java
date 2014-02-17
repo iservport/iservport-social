@@ -1,12 +1,17 @@
 package org.springframework.social.iservport.utils;
 
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.social.iservport.api.impl.RemoteUser;
+import org.springframework.social.security.SocialUserDetails;
 
 /**
  * Some static helper methods related to RemoteUsers.
@@ -14,6 +19,8 @@ import org.springframework.social.iservport.api.impl.RemoteUser;
  * @author mauriciofernandesdecastro
  */
 public final class RemoteUserUtils {
+	
+	private static final Logger logger = LoggerFactory.getLogger(RemoteUserUtils.class);
 
 	/**
 	 * Programmatically sign-in the remote user.
@@ -32,19 +39,22 @@ public final class RemoteUserUtils {
 	 * @param remoteUser
 	 */
 	public static Authentication authenticationTokenFor(RemoteUser remoteUser) {
-		return new UsernamePasswordAuthenticationToken(remoteUser, null, (Collection<GrantedAuthority>)null);		
+		List<GrantedAuthority> roles = Arrays.asList((GrantedAuthority) new SimpleGrantedAuthority("ROLE_USER"));
+		return new UsernamePasswordAuthenticationToken(remoteUser, null, roles);		
 	}
 	
 	/**
-	 * Get the currently authenticated principal.
+	 * Get the currently authenticated user key.
 	 */
-	public static RemoteUser getCurrentRemoteUser() {
+	public static String getCurrentRemoteUserKey() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
-			return new RemoteUser();
+			logger.warn("Authentication not found.");
+			return "void";
 		}
 		Object principal = authentication.getPrincipal();
-		return principal instanceof RemoteUser ? (RemoteUser) principal : new RemoteUser();
+		logger.debug("Currently authenticated principal: [{}]", principal);
+		return principal instanceof SocialUserDetails ? ((SocialUserDetails) principal).getUserId() : "empty";
 	}
 	
 	private RemoteUserUtils() {

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.support.URIBuilder;
@@ -19,6 +21,8 @@ public class IservportTemplate
 	extends AbstractOAuth2ApiBinding 
 	implements Iservport 
 {
+	
+	private static final Logger logger = LoggerFactory.getLogger(IservportTemplate.class);
 	
 	private static final String DEFAULT_BASE_URL = "https://api.iservport.com";
 	
@@ -46,7 +50,8 @@ public class IservportTemplate
 
 	@Override
 	public String applyGet(String uri) {
-		return getRestTemplate().getForObject(buildURI(uri), String.class);
+		URI u = buildURI(uri);
+		return getRestTemplate().getForObject(u, String.class);
 	}
 
 	@Override
@@ -72,6 +77,7 @@ public class IservportTemplate
 			remoteUser.setLastName((String) userAsMap.get("userLastName"));
 			remoteUser.setDisplayName((String) userAsMap.get("displayName"));
 			remoteUser.setImageUrl((String) userAsMap.get("imageUrl"));
+			logger.debug("Remote user created from profile: {}", remoteUser);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Unable to read profile.");
 		}

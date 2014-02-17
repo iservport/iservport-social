@@ -17,6 +17,8 @@ package org.springframework.social.iservport.config;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
@@ -35,9 +39,8 @@ import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.iservport.api.Iservport;
-import org.springframework.social.iservport.api.impl.IservportTemplate;
-import org.springframework.social.iservport.api.impl.RemoteUser;
 import org.springframework.social.iservport.connect.IservportConnectionFactory;
+import org.springframework.social.iservport.connect.RemoteUserConnectionSignUp;
 import org.springframework.social.iservport.repository.RemoteUserRepository;
 import org.springframework.social.iservport.utils.RemoteUserUtils;
 
@@ -52,6 +55,8 @@ import org.springframework.social.iservport.utils.RemoteUserUtils;
 public class SocialConfig 
 	implements SocialConfigurer 
 {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SocialConfig.class);
 
 	@Autowired
 	private DataSource dataSource;
@@ -88,7 +93,7 @@ public class SocialConfig
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
 		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor);
 		usersConnectionRepository.setTablePrefix("core_");
-//		usersConnectionRepository.setConnectionSignUp(new SimpleConnectionSignUp());
+		usersConnectionRepository.setConnectionSignUp(new RemoteUserConnectionSignUp(remoteUserRepository));
 		return usersConnectionRepository;
     }
 
@@ -97,17 +102,19 @@ public class SocialConfig
 	 */
     @Override
     public UserIdSource getUserIdSource() {
-		final RemoteUser remoteUser = RemoteUserUtils.getCurrentRemoteUser();
-		if (remoteUser == null) {
-			throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
-		}
-        return new UserIdSource() {
+		return new UserIdSource() {			
 			@Override
 			public String getUserId() {
-				return remoteUser.getId().toString();
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				if (authentication == null) {
+					throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
+				}
+				String userId = RemoteUserUtils.getCurrentRemoteUserKey();
+		    	logger.debug("User id source has: {}", userId);
+				return userId;
 			}
-        };
-    }
+		};
+	}
     
 	/**
 	 * A request-scoped bean representing the API binding to ISERVPORT for the current user.
@@ -120,9 +127,11 @@ public class SocialConfig
 		Connection<Iservport> connection = repository.findPrimaryConnection(Iservport.class);
 		if (connection != null) {
 			Iservport iservport = connection.getApi();
-			((IservportTemplate) iservport).setBaseUrl(env.getProperty("iservport.api.url"));
+			iservport.setBaseUrl(env.getProperty("iservport.api.url"));
+			logger.debug("Retrieved connection: ", iservport);
 			return iservport;
 		}
+		logger.warn("No connection: avaliable.");
 		return null;
 	}
 

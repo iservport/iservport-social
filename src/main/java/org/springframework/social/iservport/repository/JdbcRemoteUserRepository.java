@@ -11,8 +11,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.social.connect.UserProfile;
-import org.springframework.social.iservport.api.ProviderType;
 import org.springframework.social.iservport.api.impl.RemoteUser;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,28 +48,11 @@ public class JdbcRemoteUserRepository
 	@Transactional
 	public RemoteUser createRemoteUser(RemoteUser remoteUser) throws UserKeyAlreadyOnFileException {
 		try {
-			jdbcTemplate.update(RemoteUserMapper.INSERT_REMOTE_USER, remoteUser.getUserKey(), remoteUser.getDisplayName()
-					, remoteUser.getFirstName()
-					, imageUrl);
-			Integer id = jdbcTemplate.queryForInt("call identity()");
-			return new RemoteUser(id, userProfile.getEmail(), userProfile.getFirstName(), userProfile.getLastName()
-					, displayName, profileUrl, imageUrl, password, roles, providerType);
+			jdbcTemplate.update(RemoteUserMapper.INSERT_REMOTE_USER, getOrderedFields(remoteUser));
+			return remoteUser;
 		} catch (DuplicateKeyException e) {
-			throw new UserKeyAlreadyOnFileException(userProfile.getEmail());
-		}
-	}
-
-	@Transactional
-	public RemoteUser createRemoteUser(String userKey, String firstName, String lastName, 
-			String displayName, String profileUrl, String imageUrl, String password, String roles,
-			ProviderType providerType) throws UserKeyAlreadyOnFileException {
-		try {
-			jdbcTemplate.update(RemoteUserMapper.INSERT_REMOTE_USER, userKey, displayName, profileUrl, imageUrl);
-			Integer id = jdbcTemplate.queryForInt("call identity()");
-			return new RemoteUser(id, userKey, firstName, lastName, displayName, profileUrl, imageUrl
-					, password, roles, providerType);
-		} catch (DuplicateKeyException e) {
-			throw new UserKeyAlreadyOnFileException(userKey);
+			System.out.println(e);
+			throw new UserKeyAlreadyOnFileException(remoteUser.getUserKey());
 		}
 	}
 
@@ -122,8 +103,24 @@ public class JdbcRemoteUserRepository
 		}
 
 	}
-
-	private static final String SELECT_PASSWORD_PROTECTED_ACCOUNT = "select id, firstName, lastName, email, password, username, gender, pictureSet from Member";
-
+	
+	/**
+	 * Helper method to obtain field contents in the right sequence.
+	 * 
+	 * @param remoteUser
+	 */
+	private Object[] getOrderedFields(RemoteUser remoteUser) {
+		return new Object[] {
+				remoteUser.getId()
+			,remoteUser.getUserKey()
+			,remoteUser.getFirstName()
+			,remoteUser.getLastName()
+			,remoteUser.getDisplayName()
+			,remoteUser.getProfileUrl()
+			,remoteUser.getImageUrl()
+			,remoteUser.getRoles()
+			,remoteUser.getProviderTypeAsString()
+		};
+	}
 
 }

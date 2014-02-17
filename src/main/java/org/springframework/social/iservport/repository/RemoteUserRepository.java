@@ -27,25 +27,32 @@ import org.springframework.social.iservport.api.impl.RemoteUser;
  */
 public interface RemoteUserRepository {
 	
+	/**
+	 * Add a RemoteUser to this repository.
+	 * 
+	 * @param remoteUser
+	 * 
+	 * @throws UserKeyAlreadyOnFileException
+	 */
 	RemoteUser createRemoteUser(RemoteUser remoteUser) throws UserKeyAlreadyOnFileException;
 
-	/**
-	 * Create a new RemoteUser and add it to this repository.
-	 * 
-	 * @param userKey
-	 * @param firstName
-	 * @param lastName
-	 * @param displayName
-	 * @param profileUrl
-	 * @param imageUrl
-	 * @param password
-	 * @param roles
-	 * @param providerType
-	 * 
-	 * 
-	 * @throws UserKeyAlreadyOnFileException 
-	 */
-	RemoteUser createRemoteUser(String userKey,String firstName, String lastName, String displayName, String profileUrl, String imageUrl, String password, String roles, ProviderType providerType ) throws UserKeyAlreadyOnFileException;
+//	/**
+//	 * Create a new RemoteUser and add it to this repository.
+//	 * 
+//	 * @param userKey
+//	 * @param firstName
+//	 * @param lastName
+//	 * @param displayName
+//	 * @param profileUrl
+//	 * @param imageUrl
+//	 * @param password
+//	 * @param roles
+//	 * @param providerType
+//	 * 
+//	 * 
+//	 * @throws UserKeyAlreadyOnFileException 
+//	 */
+//	RemoteUser createRemoteUser(String userKey,String firstName, String lastName, String displayName, String profileUrl, String imageUrl, String password, String roles, ProviderType providerType ) throws UserKeyAlreadyOnFileException;
 
 	/**
 	 * Find an RemoteUser by its internal identifier.

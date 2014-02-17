@@ -42,4 +42,11 @@ public interface Iservport extends ApiBinding
 	 */
 	RemoteUser getProfile();
 	
+	/**
+	 * Set the base url.
+	 * 
+	 * @param baseUrl
+	 */
+	void setBaseUrl(String baseUrl);
+	
 }

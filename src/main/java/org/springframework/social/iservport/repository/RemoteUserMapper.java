@@ -22,18 +22,18 @@ public class RemoteUserMapper
 	 * SELECT clause for RemoteUser fields.
 	 */
 	public static final String SELECT_REMOTE_USER
-		= "select id, userKey, firstName, lastName, displayName, profileUrl, imageUrl, password, roles, providerType from core_RemoteUser";
+		= "select id, userKey, firstName, lastName, displayName, profileUrl, imageUrl, roles, providerType from core_RemoteUser";
 
 	
 	/**
 	 * INSERT clause for RemoteUser fields.
 	 */
 	public static final String INSERT_REMOTE_USER
-		= "insert into core_RemoteUser (userKey, firstName, lastName, displayName, profileUrl, imageUrl, password, roles, providerType) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		= "insert into core_RemoteUser (id, userKey, firstName, lastName, displayName, profileUrl, imageUrl, roles, providerType) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	
 	public RemoteUser mapRow(ResultSet rs, int row) throws SQLException {
-		return new RemoteUser(rs.getInt("id"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("userKey"), rs.getString("displayName"), rs.getString("profileUrl"), rs.getString("imageUrl"), rs.getString("password"), rs.getString("roles"), ProviderType.valueOf(rs.getString("providerType")));
+		return new RemoteUser(rs.getInt("id"), rs.getString("userKey"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("displayName"), rs.getString("profileUrl"), rs.getString("imageUrl"), rs.getString("roles"), ProviderType.valueOf(rs.getString("providerType")));
 	}
 
 }

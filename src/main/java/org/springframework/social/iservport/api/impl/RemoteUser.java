@@ -29,19 +29,27 @@ public class RemoteUser
 	
 	private String profileUrl = "";
 	
-	private String password = "";
-	
 	private String imageUrl = "";
 	
 	private String roles = "";
 	
-	private ProviderType providerType = ProviderType.iservport;
+	private String providerType = ProviderType.iservport.toString();
 	
 	/**
 	 * Constructor.
 	 */
 	public RemoteUser() {
 		super();
+	}
+	
+	/**
+	 * User key constructor.
+	 * 
+	 * @param userKey
+	 */
+	public RemoteUser(String userKey) {
+		this();
+		setUserKey(userKey);
 	}
 	
 	/**
@@ -66,12 +74,11 @@ public class RemoteUser
 	 * @param displayName
 	 * @param profileUrl
 	 * @param imageUrl
-	 * @param password
 	 * @param roles
 	 * @param providerType
 	 */
 	public RemoteUser(Integer id, String userKey, String firstName, String lastName, 
-			String displayName, String profileUrl, String imageUrl, String password,
+			String displayName, String profileUrl, String imageUrl,
 			String roles, ProviderType providerType) {
 		this();
 		setId(id);
@@ -81,7 +88,6 @@ public class RemoteUser
 		setDisplayName(displayName);
 		setProfileUrl(profileUrl);
 		setImageUrl(imageUrl);
-		setPassword(password);
 		setRoles(roles);
 		setProviderType(providerType);
 	}
@@ -122,10 +128,7 @@ public class RemoteUser
 	}
 	
 	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
+		return "unsafe";
 	}
 	
 	public String getProfileUrl() {
@@ -157,10 +160,20 @@ public class RemoteUser
 	}
 	
 	public ProviderType getProviderType() {
+		return ProviderType.valueOf(providerType);
+	}
+	public String getProviderTypeAsString() {
 		return providerType;
 	}
 	public void setProviderType(ProviderType providerType) {
-		this.providerType = providerType;
+		this.providerType = providerType.name();
+	}
+
+	@Override
+	public String toString() {
+		return "RemoteUser [id=" + id + ", userKey=" + userKey + ", firstName="
+				+ firstName + ", lastName=" + lastName + ", displayName="
+				+ displayName + ", providerType=" + providerType + "]";
 	}
 
 }
