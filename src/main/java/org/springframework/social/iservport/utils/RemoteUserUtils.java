@@ -53,7 +53,7 @@ public final class RemoteUserUtils {
 		}
 		Object principal = authentication.getPrincipal();
 		logger.debug("Currently authenticated principal: [{}]", principal);
-		return principal instanceof RemoteUser ? ((RemoteUser) principal).getUserKey() : "empty";
+		return principal instanceof RemoteUser ? ((RemoteUser) principal).getUserId() : "empty";
 	}
 	
 	private RemoteUserUtils() {
