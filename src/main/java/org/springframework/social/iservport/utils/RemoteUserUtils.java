@@ -11,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.social.iservport.api.impl.RemoteUser;
-import org.springframework.social.security.SocialUserDetails;
 
 /**
  * Some static helper methods related to RemoteUsers.
@@ -54,7 +53,7 @@ public final class RemoteUserUtils {
 		}
 		Object principal = authentication.getPrincipal();
 		logger.debug("Currently authenticated principal: [{}]", principal);
-		return principal instanceof SocialUserDetails ? ((SocialUserDetails) principal).getUserId() : "empty";
+		return principal instanceof RemoteUser ? ((RemoteUser) principal).getUserKey() : "empty";
 	}
 	
 	private RemoteUserUtils() {
