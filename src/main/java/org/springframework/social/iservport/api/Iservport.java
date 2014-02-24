@@ -1,9 +1,8 @@
 package org.springframework.social.iservport.api;
 
-import java.util.Map;
-
 import org.springframework.social.ApiBinding;
 import org.springframework.social.iservport.api.impl.RemoteUser;
+import org.springframework.util.MultiValueMap;
 
 /**
  * Iservpor API binding.
@@ -27,7 +26,7 @@ public interface Iservport extends ApiBinding
 	 * @param uri
 	 * @param urlVariables
 	 */
-	String applyGet(String uri, Map<String, ?> urlVariables);
+	String applyGet(String uri, MultiValueMap<String, String> urlVariables);
 	
 	/**
 	 * Common API call

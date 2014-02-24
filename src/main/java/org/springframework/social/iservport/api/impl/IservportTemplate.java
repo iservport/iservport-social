@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.support.URIBuilder;
+import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -55,8 +56,8 @@ public class IservportTemplate
 	}
 
 	@Override
-	public String applyGet(String uri, Map<String, ?> urlVariables) {
-		return getRestTemplate().getForObject(buildURI(uri).toString(), String.class, urlVariables);
+	public String applyGet(String uri, MultiValueMap<String, String> modelMap) {
+		return getRestTemplate().getForObject(buildURI(uri, (MultiValueMap<String, String>) modelMap).toString(), String.class);
 	}
 
 	@Override
@@ -82,6 +83,16 @@ public class IservportTemplate
 			throw new IllegalArgumentException("Unable to read profile.");
 		}
 		return remoteUser;
+	}
+	
+	/**
+	 * Build the uri.
+	 * 
+	 * @param uri
+	 * @param params
+	 */
+	protected URI buildURI(String uri, MultiValueMap<String, String> params) {
+		return URIBuilder.fromUri(getBaseUrl() + uri).queryParams(params).build();
 	}
 	
 	/**
