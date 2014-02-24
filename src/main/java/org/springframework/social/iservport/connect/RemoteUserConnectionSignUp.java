@@ -30,7 +30,7 @@ public class RemoteUserConnectionSignUp implements ConnectionSignUp {
 		} catch (UserKeyAlreadyOnFileException e) {
 			e.printStackTrace();
 		}
-        return remoteUser.getUserKey();
+        return remoteUser.getUserId();
     }
 	
 }

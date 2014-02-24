@@ -68,15 +68,15 @@ public interface RemoteUserRepository {
 	 */
 	RemoteUser findByUserKey(String userKey) throws UserKeyNotFoundException;
 
-	/**
-	 * Authenticate a remote user via sign-in and password.
-	 * 
-	 * @param userKey
-	 * @param password
-	 * 
-	 * @throws UserKeyNotFoundException
-	 * @throws InvalidPasswordException
-	 */
-	RemoteUser authenticate(String userKey, String password) throws UserKeyNotFoundException, InvalidPasswordException;
-	
+//	/**
+//	 * Authenticate a remote user via sign-in and password.
+//	 * 
+//	 * @param userKey
+//	 * @param password
+//	 * 
+//	 * @throws UserKeyNotFoundException
+//	 * @throws InvalidPasswordException
+//	 */
+//	RemoteUser authenticate(String userKey, String password) throws UserKeyNotFoundException, InvalidPasswordException;
+//	
 }

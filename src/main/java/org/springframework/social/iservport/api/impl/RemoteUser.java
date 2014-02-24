@@ -1,6 +1,7 @@
 package org.springframework.social.iservport.api.impl;
 
 import java.io.Serializable;
+import java.security.Principal;
 
 import org.springframework.social.UserIdSource;
 import org.springframework.social.connect.ConnectionValues;
@@ -14,6 +15,7 @@ import org.springframework.social.iservport.api.ProviderType;
  */
 public class RemoteUser 
 	implements Serializable
+	, Principal
 	, UserIdSource
 {
 	
@@ -185,4 +187,11 @@ public class RemoteUser
 		return String.valueOf(getId());
 	}
 
+	//-- From Principal interface
+	
+	@Override
+	public String getName() {
+		return String.valueOf(getId());
+	}
+	
 }

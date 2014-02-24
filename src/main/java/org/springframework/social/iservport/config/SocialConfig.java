@@ -26,8 +26,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
@@ -42,7 +40,6 @@ import org.springframework.social.iservport.api.Iservport;
 import org.springframework.social.iservport.connect.IservportConnectionFactory;
 import org.springframework.social.iservport.connect.RemoteUserConnectionSignUp;
 import org.springframework.social.iservport.repository.RemoteUserRepository;
-import org.springframework.social.iservport.utils.RemoteUserUtils;
 
 /**
  * Spring Social Configuration.
@@ -101,19 +98,8 @@ public class SocialConfig
 	 * Configure the user id.
 	 */
     @Override
-    public UserIdSource getUserIdSource() {
-		return new UserIdSource() {			
-			@Override
-			public String getUserId() {
-				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-				if (authentication == null) {
-					throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
-				}
-				String userId = RemoteUserUtils.getCurrentRemoteUserKey();
-		    	logger.debug("User id source has: {}", userId);
-				return userId;
-			}
-		};
+    public UserIdSource getUserIdSource() { 
+		return new RemoteUserIdSource();
 	}
     
 	/**

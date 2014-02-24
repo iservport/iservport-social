@@ -68,41 +68,41 @@ public class JdbcRemoteUserRepository
 		}
 	}
 
-	public RemoteUser authenticate(String userKey, String password) throws UserKeyNotFoundException, InvalidPasswordException {
-		try {
-			return jdbcTemplate.queryForObject(RemoteUserMapper.SELECT_REMOTE_USER + " where userKey = ?", passwordProtectedRemoteUserMapper, userKey).accessRemoteUser(password, passwordEncoder);
-		} catch (EmptyResultDataAccessException e) {
-			throw new UserKeyNotFoundException(userKey);
-		}
-	}
+//	public RemoteUser authenticate(String userKey, String password) throws UserKeyNotFoundException, InvalidPasswordException {
+//		try {
+//			return jdbcTemplate.queryForObject(RemoteUserMapper.SELECT_REMOTE_USER + " where userKey = ?", passwordProtectedRemoteUserMapper, userKey).accessRemoteUser(password, passwordEncoder);
+//		} catch (EmptyResultDataAccessException e) {
+//			throw new UserKeyNotFoundException(userKey);
+//		}
+//	}
+//
+//	private RowMapper<PasswordProtectedRemoteUser> passwordProtectedRemoteUserMapper = new RowMapper<PasswordProtectedRemoteUser>() {
+//		public PasswordProtectedRemoteUser mapRow(ResultSet rs, int row) throws SQLException {
+//			RemoteUser remoteUser = remoteUserMapper.mapRow(rs, row);
+//			return new PasswordProtectedRemoteUser(remoteUser, rs.getString("password"));
+//		}
+//	};
 
-	private RowMapper<PasswordProtectedRemoteUser> passwordProtectedRemoteUserMapper = new RowMapper<PasswordProtectedRemoteUser>() {
-		public PasswordProtectedRemoteUser mapRow(ResultSet rs, int row) throws SQLException {
-			RemoteUser remoteUser = remoteUserMapper.mapRow(rs, row);
-			return new PasswordProtectedRemoteUser(remoteUser, rs.getString("password"));
-		}
-	};
-
-	private static class PasswordProtectedRemoteUser {
-
-		private RemoteUser remoteUser;
-
-		private String encodedPassword;
-
-		public PasswordProtectedRemoteUser(RemoteUser remoteUser, String encodedPassword) {
-			this.remoteUser = remoteUser;
-			this.encodedPassword = encodedPassword;
-		}
-
-		public RemoteUser accessRemoteUser(String password, PasswordEncoder passwordEncoder) throws InvalidPasswordException {
-			if (passwordEncoder.matches(password, encodedPassword)) {
-				return remoteUser;
-			} else {
-				throw new InvalidPasswordException();
-			}
-		}
-
-	}
+//	private static class PasswordProtectedRemoteUser {
+//
+//		private RemoteUser remoteUser;
+//
+//		private String encodedPassword;
+//
+//		public PasswordProtectedRemoteUser(RemoteUser remoteUser, String encodedPassword) {
+//			this.remoteUser = remoteUser;
+//			this.encodedPassword = encodedPassword;
+//		}
+//
+//		public RemoteUser accessRemoteUser(String password, PasswordEncoder passwordEncoder) throws InvalidPasswordException {
+//			if (passwordEncoder.matches(password, encodedPassword)) {
+//				return remoteUser;
+//			} else {
+//				throw new InvalidPasswordException();
+//			}
+//		}
+//
+//	}
 	
 	/**
 	 * Helper method to obtain field contents in the right sequence.

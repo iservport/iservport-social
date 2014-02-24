@@ -44,7 +44,7 @@ public class IservportAdapter
 		return new UserProfileBuilder()
 				.setFirstName(user.getFirstName())
 				.setLastName(user.getLastName())
-				.setUsername(user.getUserKey())
+				.setUsername(user.getUserId())
 				.setEmail(user.getUserKey())
 			.build();
 	}
