@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.iservport.api.impl.RemoteUser;
+import org.springframework.social.security.SocialUserDetails;
 
 /**
  * User id source based on RemoteUser.
@@ -25,7 +26,13 @@ public class RemoteUserIdSource
 			throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in");
 		}
 		Object principal = authentication.getPrincipal();
-		String userId = principal instanceof RemoteUser ? ((RemoteUser) principal).getUserId() : "empty";
+		String userId = "empty";
+		if (principal instanceof RemoteUser) {
+			userId = ((RemoteUser) principal).getUserId();
+		}
+		else if (principal instanceof SocialUserDetails) {
+			userId = ((SocialUserDetails) principal).getUserId();
+		}
     	logger.debug("User id source has: {}", userId);
 		return userId;
 	}
