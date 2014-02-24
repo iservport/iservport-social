@@ -11,7 +11,7 @@ import org.springframework.social.iservport.api.Iservport;
 public class IservportConnectionFactory extends OAuth2ConnectionFactory<Iservport> {
 	
     public IservportConnectionFactory(String applicationUrl) {
-        super("iservport", new IservportServiceProvider("iservportClient", "iservport", applicationUrl), new IservportAdapter());
+        super("iservport", new IservportServiceProvider("iservportApi", "iservport", applicationUrl), new IservportAdapter());
     }
     
 }
